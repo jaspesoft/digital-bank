@@ -1,7 +1,7 @@
 package clientdomain
 
 import (
-	"fmt"
+	"digital-bank/internal/system/domain"
 	"time"
 )
 
@@ -9,7 +9,7 @@ const (
 	COMPANY_CLIENT    AccountType = "COMPANY"
 	INDIVIDUAL_CLIENT AccountType = "INDIVIDUAL"
 
-	S_CITIZEN          ResidencyStatus = "US_CITIZEN"
+	US_CITIZEN         ResidencyStatus = "US_CITIZEN"
 	RESIDENT_ALIEN     ResidencyStatus = "RESIDENT_ALIEN"
 	NON_RESIDENT_ALIEN ResidencyStatus = "NON_RESIDENT_ALIEN"
 )
@@ -72,7 +72,7 @@ func (i *Individual) GetIDNumber() string {
 	return i.DNI
 }
 
-func (i *Individual) SetAccountHolder(holder interface{}) {
+func (i *Individual) SetAccountHolder(holder interface{}) *domain.Result[string] {
 	if individual, ok := holder.(*Individual); ok {
 		i.DNI = individual.DNI
 		i.FirstName = individual.FirstName
@@ -85,9 +85,15 @@ func (i *Individual) SetAccountHolder(holder interface{}) {
 		i.ResidencyStatus = individual.ResidencyStatus
 		i.Documents = individual.Documents
 		i.Address = individual.Address
-	} else {
-		fmt.Println("Error: El tipo de AccountHolder no es Individual")
+
+		return nil
 	}
+
+	return domain.NewResult("", &domain.ErrorMessage{
+		HttpCode: 400,
+		Message:  "The type of Account Holder is not Individual",
+	})
+
 }
 
 func (i *Individual) SetKYC(kyc KYC) {

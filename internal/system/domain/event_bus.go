@@ -18,6 +18,6 @@ type (
 
 	EventBus interface {
 		Emit(data interface{}, topic Topic) error
-		Subscribe(topic Topic, callback func(Message)) error
+		Subscribe(topic Topic, callback func(Message))
 	}
 )

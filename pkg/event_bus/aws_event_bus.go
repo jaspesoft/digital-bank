@@ -1,6 +1,7 @@
 package eventbus
 
 import (
+	"digital-bank/internal/system/domain"
 	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
@@ -23,9 +24,10 @@ func NewAWSEventBus() *AWSEventBus {
 	}
 }
 
-func (s *AWSEventBus) TransmissionMessage(payload string, topic string) error {
+func (s *AWSEventBus) Emit(data interface{}, topic domain.Topic) error {
+	str, _ := data.(string)
 	params := &sns.PublishInput{
-		Message:  aws.String(payload),
+		Message:  aws.String(str),
 		TopicArn: aws.String(fmt.Sprintf("arn:aws:sns:%s:837217772820:%s", os.Getenv("AWS_REGION"), topic)),
 	}
 
@@ -40,7 +42,7 @@ func (s *AWSEventBus) TransmissionMessage(payload string, topic string) error {
 	return nil
 }
 
-func (s *AWSEventBus) Subscribe(topic string, callback func(messageBody string)) error {
+func (s *AWSEventBus) Subscribe(topic domain.Topic, callback func(Message)) {
 	queueURL := fmt.Sprintf("https://sqs.%s.amazonaws.com/837217772820/%s-sqs", os.Getenv("AWS_REGION"), topic)
 
 	params := &sqs.ReceiveMessageInput{
@@ -70,7 +72,10 @@ func (s *AWSEventBus) Subscribe(topic string, callback func(messageBody string))
 				}
 
 				// Procesa el mensaje
-				callback(payload.Message)
+				callback(Message{
+					Data:  payload.Message,
+					Topic: topic,
+				})
 
 				// Elimina el mensaje de la cola después de procesarlo
 				_, err = s.sqs.DeleteMessage(&sqs.DeleteMessageInput{
@@ -85,5 +90,5 @@ func (s *AWSEventBus) Subscribe(topic string, callback func(messageBody string))
 	}
 
 	go receiveMessage()
-	return nil
+
 }

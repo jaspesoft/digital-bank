@@ -1,6 +1,7 @@
 package clientdomain
 
 import (
+	"digital-bank/internal/system/domain"
 	"fmt"
 	"time"
 )
@@ -70,7 +71,7 @@ func (c *Company) GetName() string {
 	return c.Name
 }
 
-func (c *Company) SetAccountHolder(holder interface{}) {
+func (c *Company) SetAccountHolder(holder interface{}) *domain.Result[string] {
 	if company, ok := holder.(*Company); ok {
 		c.Name = company.Name
 		c.PrimaryBusiness = company.PrimaryBusiness
@@ -89,7 +90,14 @@ func (c *Company) SetAccountHolder(holder interface{}) {
 		c.KYC = company.KYC
 		c.Questionnaire = company.Questionnaire
 		c.Partners = company.Partners
+
+		return nil
 	}
+
+	return domain.NewResult("", &domain.ErrorMessage{
+		HttpCode: 400,
+		Message:  "The type of Account Holder is not Company",
+	})
 }
 
 func (c *Company) SetKYC(kyc KYC) {
@@ -112,7 +120,7 @@ func (c *Company) EditPartner(dni string, updatedPartner Individual) {
 			c.Partners[index].ResidencyStatus = updatedPartner.ResidencyStatus
 			c.Partners[index].Address = updatedPartner.Address
 
-			return
+			break
 		}
 	}
 
@@ -122,17 +130,17 @@ func (c *Company) UpdatePartnerKYC(dni string, kyc *KYC) {
 	for index, partner := range c.Partners {
 		if partner.DNI == dni {
 			c.Partners[index].KYC = kyc
-			return
+			break
 		}
 	}
-	// Manejo de error o notificación de no encontrado puede ser agregado aquí
+
 }
 
 func (c *Company) GetIDNumber() string {
 	return c.RegisterNumber
 }
 
-func (c *Company) setDocument(document Document, dni string) {
+func (c *Company) setDocument(document Document, dni string) *domain.Result[string] {
 	// assign or updated document to company
 	if c.GetIDNumber() == dni {
 		documentExist := false
@@ -147,12 +155,15 @@ func (c *Company) setDocument(document Document, dni string) {
 		if !documentExist {
 			c.Documents = append(c.Documents, document)
 		}
-		return
+		return nil
 	}
 
 	if len(c.Partners) == 0 {
 		fmt.Println("Company partners not found")
-		return
+		return domain.NewResult("", &domain.ErrorMessage{
+			HttpCode: 404,
+			Message:  "Company partners not found",
+		})
 	}
 
 	// assign or updated document to partner
@@ -174,6 +185,8 @@ func (c *Company) setDocument(document Document, dni string) {
 			partner.Documents = append(partner.Documents, document)
 		}
 	}
+
+	return nil
 
 }
 
