@@ -1,7 +1,7 @@
 package clientdomain
 
 import (
-	"digital-bank/internal/system/domain"
+	systemdomain "digital-bank/internal/system/domain"
 	"time"
 )
 
@@ -72,7 +72,7 @@ func (i *Individual) GetIDNumber() string {
 	return i.DNI
 }
 
-func (i *Individual) SetAccountHolder(holder interface{}) *domain.Result[string] {
+func (i *Individual) SetAccountHolder(holder interface{}) *systemdomain.Result[string] {
 	if individual, ok := holder.(*Individual); ok {
 		i.DNI = individual.DNI
 		i.FirstName = individual.FirstName
@@ -89,7 +89,7 @@ func (i *Individual) SetAccountHolder(holder interface{}) *domain.Result[string]
 		return nil
 	}
 
-	return domain.NewResult("", &domain.ErrorMessage{
+	return systemdomain.NewResult("", &systemdomain.ErrorMessage{
 		HttpCode: 400,
 		Message:  "The type of Account Holder is not Individual",
 	})

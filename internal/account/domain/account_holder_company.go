@@ -71,7 +71,7 @@ func (c *Company) GetName() string {
 	return c.Name
 }
 
-func (c *Company) SetAccountHolder(holder interface{}) *domain.Result[string] {
+func (c *Company) SetAccountHolder(holder interface{}) *systemdomain.Result[string] {
 	if company, ok := holder.(*Company); ok {
 		c.Name = company.Name
 		c.PrimaryBusiness = company.PrimaryBusiness
@@ -94,7 +94,7 @@ func (c *Company) SetAccountHolder(holder interface{}) *domain.Result[string] {
 		return nil
 	}
 
-	return domain.NewResult("", &domain.ErrorMessage{
+	return systemdomain.NewResult("", &systemdomain.ErrorMessage{
 		HttpCode: 400,
 		Message:  "The type of Account Holder is not Company",
 	})
@@ -140,7 +140,7 @@ func (c *Company) GetIDNumber() string {
 	return c.RegisterNumber
 }
 
-func (c *Company) setDocument(document Document, dni string) *domain.Result[string] {
+func (c *Company) setDocument(document Document, dni string) *systemdomain.Result[string] {
 	// assign or updated document to company
 	if c.GetIDNumber() == dni {
 		documentExist := false
@@ -160,7 +160,7 @@ func (c *Company) setDocument(document Document, dni string) *domain.Result[stri
 
 	if len(c.Partners) == 0 {
 		fmt.Println("Company partners not found")
-		return domain.NewResult("", &domain.ErrorMessage{
+		return systemdomain.NewResult("", &systemdomain.ErrorMessage{
 			HttpCode: 404,
 			Message:  "Company partners not found",
 		})

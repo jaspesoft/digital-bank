@@ -1,4 +1,4 @@
-package domain
+package systemdomain
 
 type (
 	ErrorMessage struct {

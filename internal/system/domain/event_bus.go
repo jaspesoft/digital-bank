@@ -1,4 +1,4 @@
-package domain
+package systemdomain
 
 const (
 	TOPIC_NOTIFY_CLIENT_WEBHOOK     Topic = "NOTIFY_CLIENT_WEBHOOK"

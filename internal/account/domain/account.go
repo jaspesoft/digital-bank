@@ -1,6 +1,7 @@
 package clientdomain
 
 import (
+	systemdomain "digital-bank/internal/system/domain"
 	"time"
 )
 
@@ -19,17 +20,18 @@ type (
 	AccountStatus string
 
 	Account struct {
-		Name           string         `json:"name"`
-		Type           AccountType    `json:"clientType"`
-		AccountHolder  AccountHolder  `json:"accountHolder"`
-		Status         AccountStatus  `json:"status"`
-		TransactionFee TransactionFee `json:"transactionFee"`
-		CreatedAt      time.Time      `bson:"createdAt" json:"createdAt"`
-		ApprovedAt     time.Time      `bson:"createdAt" json:"approvedAt"`
+		Name             string                      `json:"name"`
+		Type             AccountType                 `json:"clientType"`
+		AccountHolder    AccountHolder               `json:"accountHolder"`
+		Status           AccountStatus               `json:"status"`
+		TransactionFee   systemdomain.TransactionFee `json:"transactionFee"`
+		CreatedAt        time.Time                   `bson:"createdAt" json:"createdAt"`
+		ApprovedAt       time.Time                   `bson:"createdAt" json:"approvedAt"`
+		ClientIdentifier systemdomain.AppClientIdentifier
 	}
 )
 
-func NewAccount(accountHolder AccountHolder, transactionFee TransactionFee) *Account {
+func NewAccount(accountHolder AccountHolder, transactionFee systemdomain.TransactionFee) *Account {
 	accountHolder.SetAccountHolder(accountHolder)
 
 	return &Account{
@@ -58,7 +60,7 @@ func (a *Account) GetStatus() AccountStatus {
 	return a.Status
 }
 
-func (a *Account) GetTransactionFee() TransactionFee {
+func (a *Account) GetTransactionFee() systemdomain.TransactionFee {
 	return a.TransactionFee
 }
 
