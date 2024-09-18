@@ -1,4 +1,4 @@
-package clientdomain
+package accountdomain
 
 const (
 	SELFIE                           DocumentType = "selfie"

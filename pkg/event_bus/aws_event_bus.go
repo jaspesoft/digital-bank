@@ -1,7 +1,7 @@
 package eventbus
 
 import (
-	"digital-bank/internal/system/domain"
+	systemdomain "digital-bank/domain/system/domain"
 	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
@@ -24,7 +24,7 @@ func NewAWSEventBus() *AWSEventBus {
 	}
 }
 
-func (s *AWSEventBus) Emit(data interface{}, topic domain.Topic) error {
+func (s *AWSEventBus) Emit(data interface{}, topic systemdomain.Topic) error {
 	str, _ := data.(string)
 	params := &sns.PublishInput{
 		Message:  aws.String(str),
@@ -42,7 +42,7 @@ func (s *AWSEventBus) Emit(data interface{}, topic domain.Topic) error {
 	return nil
 }
 
-func (s *AWSEventBus) Subscribe(topic domain.Topic, callback func(Message)) {
+func (s *AWSEventBus) Subscribe(topic systemdomain.Topic, callback func(Message)) {
 	queueURL := fmt.Sprintf("https://sqs.%s.amazonaws.com/837217772820/%s-sqs", os.Getenv("AWS_REGION"), topic)
 
 	params := &sqs.ReceiveMessageInput{

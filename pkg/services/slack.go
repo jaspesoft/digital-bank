@@ -1,18 +1,18 @@
 package services
 
 import (
-	"digital-bank/internal/system/domain"
+	systemdomain "digital-bank/domain/system/domain"
 	"github.com/slack-go/slack"
 	"os"
 )
 
 type (
 	Slack struct {
-		notification domain.Notification
+		notification systemdomain.Notification
 	}
 )
 
-func (s *Slack) SetMessage(n domain.Notification) {
+func (s *Slack) SetMessage(n systemdomain.Notification) {
 	s.notification = n
 }
 

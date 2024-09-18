@@ -1,7 +1,7 @@
-package clientdomain
+package accountdomain
 
 import (
-	"digital-bank/internal/system/domain"
+	"digital-bank/domain/system/domain"
 	"fmt"
 	"time"
 )
