@@ -1,0 +1,22 @@
+FROM golang:1.22-alpine AS builder
+
+WORKDIR /app
+
+COPY go.sum go.mod ./
+
+RUN go mod download
+
+COPY . .
+
+RUN go build -o digital_bank cmd/main.go
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /app
+
+COPY --from=builder /digital_bank/digital_bank .
+
+EXPOSE 8080
+
+CMD ["./digital_bank"]

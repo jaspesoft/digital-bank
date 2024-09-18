@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -15,5 +16,8 @@ func Start() {
 
 	r.Use(cors.New(config))
 
+	fmt.Println("Server is running on port 8080")
+
 	_ = r.Run(":8080")
+
 }

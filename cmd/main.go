@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"digital-bank/infrastructure/api/server"

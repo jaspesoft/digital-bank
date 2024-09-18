@@ -9,6 +9,7 @@ func NewRouter() *gin.Engine {
 	r := gin.Default()
 
 	routes.AccountRoute(r)
+	routes.SystemRoute(r)
 
 	return r
 }
