@@ -10,6 +10,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-resty/resty/v2 v2.15.0
+	github.com/google/uuid v1.6.0
 	github.com/slack-go/slack v0.14.0
 	go.mongodb.org/mongo-driver v1.16.1
 )

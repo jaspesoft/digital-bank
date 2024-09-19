@@ -20,6 +20,7 @@ type (
 		companyID             string          `json:"companyId"`
 		secret                string          `json:"secret"`
 		technologyProviderFee TransactionFee  `json:"technologyProviderFee"`
+		commissions           TransactionFee  `json:"comissions"`
 		status                AppClientStatus `json:"status"`
 		createdAt             time.Time       `json:"createdAt"`
 	}
@@ -35,12 +36,13 @@ type (
 	}
 )
 
-func NewClient(clintId, name string, technologyProviderFee TransactionFee) AppClient {
+func NewClient(clintID EntityID, name string, commissions TransactionFee, technologyProviderFee TransactionFee) AppClient {
 
 	client := AppClient{
-		clientID:              clintId,
+		clientID:              clintID.GetID(),
 		name:                  name,
 		status:                AppClientStatusActive,
+		commissions:           commissions,
 		technologyProviderFee: technologyProviderFee,
 	}
 
@@ -79,6 +81,10 @@ func (c *AppClient) GetIdentifier() AppClientIdentifier {
 	}
 }
 
+func (c *AppClient) GetCommissionsDefault() TransactionFee {
+	return c.commissions
+}
+
 func (c *AppClient) ToMap() map[string]interface{} {
 	return map[string]interface{}{
 		"clientId":              c.clientID,
@@ -86,6 +92,7 @@ func (c *AppClient) ToMap() map[string]interface{} {
 		"companyId":             c.companyID,
 		"secret":                c.secret,
 		"status":                c.status,
+		"commissions":           c.commissions.ToMap(),
 		"technologyProviderFee": c.technologyProviderFee.ToMap(),
 	}
 }

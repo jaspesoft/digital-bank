@@ -21,14 +21,15 @@ type (
 	AccountStatus string
 
 	Account struct {
-		Name             string                           `bson:"name" json:"name"`
-		Type             AccountType                      `bson:"type" json:"clientType"`
-		AccountHolder    AccountHolder                    `bson:"accountHolder" json:"accountHolder"`
-		Status           AccountStatus                    `bson:"status" json:"status"`
-		TransactionFee   systemdomain.TransactionFee      `bson:"transactionFee" json:"transactionFee"`
-		CreatedAt        time.Time                        `bson:"createdAt" json:"createdAt"`
-		ApprovedAt       time.Time                        `bson:"createdAt" json:"approvedAt"`
-		ClientIdentifier systemdomain.AppClientIdentifier `bson:"clientIdentifier" json:"clientIdentifier"`
+		accountID      string                           `bson:"accountId" json:"accountId"`
+		name           string                           `bson:"name" json:"name"`
+		typeAccount    AccountType                      `bson:"type" json:"clientType"`
+		accountHolder  AccountHolder                    `bson:"accountHolder" json:"accountHolder"`
+		status         AccountStatus                    `bson:"status" json:"status"`
+		transactionFee systemdomain.TransactionFee      `bson:"transactionFee" json:"transactionFee"`
+		createdAt      time.Time                        `bson:"createdAt" json:"createdAt"`
+		approvedAt     time.Time                        `bson:"createdAt" json:"approvedAt"`
+		ownerRecord    systemdomain.AppClientIdentifier `bson:"clientOwnerRecord" json:"ownerRecord"`
 	}
 
 	AccountRepository interface {
@@ -36,68 +37,74 @@ type (
 	}
 )
 
-func NewAccount(accountHolder AccountHolder, transactionFee systemdomain.TransactionFee) *Account {
+func NewAccount(accountID systemdomain.EntityID, accountHolder AccountHolder, ownerRecord systemdomain.AppClient) *Account {
 	accountHolder.SetAccountHolder(accountHolder)
 
 	return &Account{
-		Name:           accountHolder.GetName(),
-		Type:           accountHolder.GetType(),
-		AccountHolder:  accountHolder,
-		Status:         REGISTERED,
-		TransactionFee: transactionFee,
-		CreatedAt:      time.Now(),
+		accountID:      accountID.GetID(),
+		name:           accountHolder.GetName(),
+		typeAccount:    accountHolder.GetType(),
+		accountHolder:  accountHolder,
+		status:         REGISTERED,
+		transactionFee: ownerRecord.GetCommissionsDefault(),
+		ownerRecord:    ownerRecord.GetIdentifier(),
+		createdAt:      time.Now(),
 	}
 }
 
 func (a *Account) GetName() string {
-	return a.Name
+	return a.name
+}
+
+func (a *Account) GetAccountID() string {
+	return a.accountID
 }
 
 func (a *Account) GetType() AccountType {
-	return a.AccountHolder.GetType()
+	return a.accountHolder.GetType()
 }
 
 func (a *Account) GetAccountHolder() AccountHolder {
-	return a.AccountHolder
+	return a.accountHolder
 }
 
 func (a *Account) GetStatus() AccountStatus {
-	return a.Status
+	return a.status
 }
 
 func (a *Account) GetTransactionFee() systemdomain.TransactionFee {
-	return a.TransactionFee
+	return a.transactionFee
 }
 
 func (a *Account) ApproveAccount() {
-	a.Status = APPROVED
-	a.ApprovedAt = time.Now()
+	a.status = APPROVED
+	a.approvedAt = time.Now()
 }
 
 func (a *Account) RejectAccount() {
-	a.Status = REJECTED
+	a.status = REJECTED
 }
 
 func (a *Account) RequestChanges() {
-	a.Status = CHANGES_REQUESTED
+	a.status = CHANGES_REQUESTED
 }
 
 func (a *Account) FreezeAccount() {
-	a.Status = FROZEN
+	a.status = FROZEN
 }
 
 func (a *Account) SuspectFraud() {
-	a.Status = SUSPECTED_FRAUD
+	a.status = SUSPECTED_FRAUD
 }
 
 func (a *Account) ToMap() map[string]interface{} {
 	return map[string]interface{}{
-		"name":           a.Name,
-		"type":           a.Type,
-		"accountHolder":  a.AccountHolder.ToMap(),
-		"status":         a.Status,
-		"transactionFee": a.TransactionFee.ToMap(),
-		"createdAt":      a.CreatedAt,
-		"approvedAt":     a.ApprovedAt,
+		"name":           a.name,
+		"type":           a.typeAccount,
+		"accountHolder":  a.accountHolder.ToMap(),
+		"status":         a.status,
+		"transactionFee": a.transactionFee.ToMap(),
+		"createdAt":      a.createdAt,
+		"approvedAt":     a.approvedAt,
 	}
 }
