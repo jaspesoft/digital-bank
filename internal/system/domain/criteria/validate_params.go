@@ -1,6 +1,8 @@
 package criteria
 
-import "digital-bank/pkg/criteria_db/criteria/errors"
+import (
+	"digital-bank/internal/system/domain/criteria/errors"
+)
 
 func CheckParamsIsValid(va string, list []interface{}) {
 	for _, v := range list {

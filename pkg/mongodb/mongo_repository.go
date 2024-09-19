@@ -2,7 +2,7 @@ package mongo
 
 import (
 	"context"
-	"digital-bank/pkg/criteria_db/criteria"
+	"digital-bank/internal/system/domain/criteria"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

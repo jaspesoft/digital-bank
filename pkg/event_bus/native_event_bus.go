@@ -1,7 +1,7 @@
 package eventbus
 
 import (
-	systemdomain "digital-bank/domain/system/domain"
+	systemdomain "digital-bank/internal/system/domain"
 	"sync"
 )
 

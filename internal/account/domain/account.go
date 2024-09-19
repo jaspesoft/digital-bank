@@ -1,7 +1,8 @@
 package accountdomain
 
 import (
-	systemdomain "digital-bank/domain/system/domain"
+	systemdomain "digital-bank/internal/system/domain"
+	"digital-bank/internal/system/domain/criteria"
 	"time"
 )
 
@@ -20,14 +21,18 @@ type (
 	AccountStatus string
 
 	Account struct {
-		Name             string                      `json:"name"`
-		Type             AccountType                 `json:"clientType"`
-		AccountHolder    AccountHolder               `json:"accountHolder"`
-		Status           AccountStatus               `json:"status"`
-		TransactionFee   systemdomain.TransactionFee `json:"transactionFee"`
-		CreatedAt        time.Time                   `bson:"createdAt" json:"createdAt"`
-		ApprovedAt       time.Time                   `bson:"createdAt" json:"approvedAt"`
-		ClientIdentifier systemdomain.AppClientIdentifier
+		Name             string                           `bson:"name" json:"name"`
+		Type             AccountType                      `bson:"type" json:"clientType"`
+		AccountHolder    AccountHolder                    `bson:"accountHolder" json:"accountHolder"`
+		Status           AccountStatus                    `bson:"status" json:"status"`
+		TransactionFee   systemdomain.TransactionFee      `bson:"transactionFee" json:"transactionFee"`
+		CreatedAt        time.Time                        `bson:"createdAt" json:"createdAt"`
+		ApprovedAt       time.Time                        `bson:"createdAt" json:"approvedAt"`
+		ClientIdentifier systemdomain.AppClientIdentifier `bson:"clientIdentifier" json:"clientIdentifier"`
+	}
+
+	AccountRepository interface {
+		Paginate(criteria *criteria.Criteria) (criteria.Paginate, error)
 	}
 )
 

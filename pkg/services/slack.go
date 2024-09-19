@@ -1,7 +1,7 @@
 package services
 
 import (
-	systemdomain "digital-bank/domain/system/domain"
+	systemdomain "digital-bank/internal/system/domain"
 	"github.com/slack-go/slack"
 	"os"
 )

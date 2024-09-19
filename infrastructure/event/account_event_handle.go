@@ -1,7 +1,7 @@
 package event
 
 import (
-	systemdomain "digital-bank/domain/system/domain"
+	systemdomain "digital-bank/internal/system/domain"
 	eventbus "digital-bank/pkg/event_bus"
 )
 

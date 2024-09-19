@@ -1,7 +1,7 @@
 package accountdomain
 
 import (
-	"digital-bank/domain/system/domain"
+	"digital-bank/internal/system/domain"
 	"fmt"
 	"time"
 )
@@ -31,35 +31,35 @@ type (
 	}
 
 	CompanyQuestionnaire struct {
-		PurposeAccount                         string `json:"purposeAccount"`
-		SourceAssetsAndIncome                  string `json:"sourceAssetsAndIncome"`
-		IntendedUseAccount                     string `json:"intendedUseAccount"`
-		AnticipatedTypesAssets                 string `json:"anticipatedTypesAssets"`
-		AnticipatedMonthlyCashVolume           string `json:"anticipatedMonthlyCashVolume"`
-		AnticipatedTradingPatterns             string `json:"anticipatedTradingPatterns"`
-		AnticipatedMonthlyTransactionsIncoming string `json:"anticipatedMonthlyTransactionsIncoming"`
-		AnticipatedMonthlyTransactionsOutgoing string `json:"anticipatedMonthlyTransactionsOutgoing"`
-		NatureBusinessCompany                  string `json:"natureBusinessCompany"`
+		PurposeAccount                         string `bson:"purposeAccount" json:"purposeAccount"`
+		SourceAssetsAndIncome                  string `bson:"sourceAssetsAndIncome" json:"sourceAssetsAndIncome"`
+		IntendedUseAccount                     string `bson:"intendedUseAccount" json:"intendedUseAccount"`
+		AnticipatedTypesAssets                 string `bson:"anticipatedTypesAssets" json:"anticipatedTypesAssets"`
+		AnticipatedMonthlyCashVolume           string `bson:"anticipatedMonthlyCashVolume" json:"anticipatedMonthlyCashVolume"`
+		AnticipatedTradingPatterns             string `bson:"anticipatedTradingPatterns" json:"anticipatedTradingPatterns"`
+		AnticipatedMonthlyTransactionsIncoming string `bson:"anticipatedMonthlyTransactionsIncoming" json:"anticipatedMonthlyTransactionsIncoming"`
+		AnticipatedMonthlyTransactionsOutgoing string `bson:"anticipatedMonthlyTransactionsOutgoing" json:"anticipatedMonthlyTransactionsOutgoing"`
+		NatureBusinessCompany                  string `bson:"natureBusinessCompany" json:"natureBusinessCompany"`
 	}
 
 	Company struct {
-		Name                      string                `json:"name"`
-		PrimaryBusiness           string                `json:"primaryBusiness"`
-		DescriptionBusinessNature string                `json:"descriptionBusinessNature"`
-		RegisterNumber            string                `json:"registerNumber"`
-		NAICS                     string                `json:"naics"`
-		NAICSDescription          string                `json:"naicsDescription"`
-		CompanyType               CompanyType           `json:"companyType"`
-		EstablishedDate           time.Time             `json:"establishedDate"`
-		WebSite                   string                `json:"webSite"`
-		RegisteredAddress         Address               `json:"registeredAddress"`
-		PhysicalAddress           Address               `json:"physicalAddress,omitempty"`
-		PhoneCountry              string                `json:"phoneCountry"`
-		PhoneNumber               string                `json:"phoneNumber"`
-		Documents                 []Document            `json:"documents"`
-		KYC                       *KYC                  `json:"kyc,omitempty"`
-		Questionnaire             *CompanyQuestionnaire `json:"questionnaire"`
-		Partners                  []Individual          `json:"partners"`
+		Name                      string                `bson:"name" json:"name"`
+		PrimaryBusiness           string                `bson:"primaryBusiness" json:"primaryBusiness"`
+		DescriptionBusinessNature string                `bson:"descriptionBusinessNature" json:"descriptionBusinessNature"`
+		RegisterNumber            string                `bson:"registerNumber" json:"registerNumber"`
+		NAICS                     string                `bson:"naics" json:"naics"`
+		NAICSDescription          string                `bson:"naicsDscription" json:"naicsDescription"`
+		CompanyType               CompanyType           `bson:"companyType" json:"companyType"`
+		EstablishedDate           time.Time             `bson:"establishedDate" json:"establishedDate"`
+		WebSite                   string                `bson:"webSite" json:"webSite"`
+		RegisteredAddress         Address               `bson:"registeredAddress "json:"registeredAddress"`
+		PhysicalAddress           Address               `bson:"physicalAddress" json:"physicalAddress,omitempty"`
+		PhoneCountry              string                `bson:"phoneCountry" json:"phoneCountry"`
+		PhoneNumber               string                `bson:"phoneNumber" json:"phoneNumber"`
+		Documents                 []Document            `bson:"documents" json:"documents"`
+		KYC                       *KYC                  `bson:"kyc" json:"kyc,omitempty"`
+		Questionnaire             *CompanyQuestionnaire `bson:"questionnaire" json:"questionnaire"`
+		Partners                  []Individual          `bson:"partners" json:"partners"`
 	}
 )
 

@@ -1,7 +1,7 @@
 package systemdomain
 
 import (
-	"digital-bank/domain"
+	"digital-bank/internal"
 	"encoding/base64"
 	"time"
 )
@@ -68,8 +68,8 @@ func (c *AppClient) GetTokenAPI() string {
 }
 
 func (c *AppClient) GenerateNewCredentialsAPI() {
-	c.companyID = domain.GenerateRandomString(16)
-	c.secret = base64.StdEncoding.EncodeToString([]byte(domain.GenerateRandomString(32)))
+	c.companyID = internal.GenerateRandomString(16)
+	c.secret = base64.StdEncoding.EncodeToString([]byte(internal.GenerateRandomString(32)))
 }
 
 func (c *AppClient) GetIdentifier() AppClientIdentifier {

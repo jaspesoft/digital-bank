@@ -1,15 +1,16 @@
 package server
 
 import (
-	"digital-bank/infrastructure/api/server/routes"
+	httpaccount "digital-bank/internal/account/infrastructure/http"
+	httpsystem "digital-bank/internal/system/infrastructure/http"
 	"github.com/gin-gonic/gin"
 )
 
 func NewRouter() *gin.Engine {
 	r := gin.Default()
 
-	routes.AccountRoute(r)
-	routes.SystemRoute(r)
+	httpaccount.AccountRoute(r)
+	httpsystem.SystemRoute(r)
 
 	return r
 }

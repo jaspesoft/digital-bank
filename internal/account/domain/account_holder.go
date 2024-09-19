@@ -1,7 +1,7 @@
 package accountdomain
 
 import (
-	systemdomain "digital-bank/domain/system/domain"
+	systemdomain "digital-bank/internal/system/domain"
 	"time"
 )
 
@@ -29,34 +29,34 @@ type (
 	}
 
 	Address struct {
-		StreetOne       string `json:"streetOne"`
-		StreetTwo       string `json:"streetTwo,omitempty"`
-		PostalCode      string `json:"postalCode"`
-		City            string `json:"city"`
-		Region          string `json:"region"`
-		Country         string `json:"country"`
-		Number          string `json:"number,omitempty"`
-		ApartmentNumber string `json:"apartmentNumber,omitempty"`
-		IsShipping      bool   `json:"isShipping,omitempty"`
+		StreetOne       string `bson:"streetOne" json:"streetOne"`
+		StreetTwo       string `bson:"streetTwo" json:"streetTwo,omitempty"`
+		PostalCode      string `bson:"postalCode" json:"postalCode"`
+		City            string `bson:"city" json:"city"`
+		Region          string `bson:"region" json:"region"`
+		Country         string `bson:"country" json:"country"`
+		Number          string `bson:"number" json:"number,omitempty"`
+		ApartmentNumber string `bson:"apartmentNumber" json:"apartmentNumber,omitempty"`
+		IsShipping      bool   `bson:"isShipping" json:"isShipping,omitempty"`
 	}
 
 	KYC struct {
-		CIPChecks          string            `json:"cipChecks"`
-		KYCRequiredActions map[string]string `json:"kycRequiredActions"`
+		CIPChecks          string            `bson:"CIPChecks" json:"cipChecks"`
+		KYCRequiredActions map[string]string `bson:"KYCRequiredActions" json:"kycRequiredActions"`
 	}
 
 	Individual struct {
-		FirstName       string          `json:"firstName"`
-		DNI             string          `json:"dni"`
-		MiddleName      *string         `json:"middleName"`
-		LastName        string          `json:"lastName"`
-		TaxID           *string         `json:"taxId,omitempty"`
-		Passport        *string         `json:"passport,omitempty"`
-		DateBirth       *time.Time      `json:"dateBirth,omitempty"`
-		KYC             *KYC            `json:"kyc,omitempty"`
-		ResidencyStatus ResidencyStatus `json:"residencyStatus"`
-		Documents       []Document      `json:"documents"`
-		Address         *Address        `json:"address,omitempty"`
+		FirstName       string          `bson:"firstName" json:"firstName"`
+		DNI             string          `bson:"dni" json:"dni"`
+		MiddleName      *string         `bson:"middleName" json:"middleName"`
+		LastName        string          `bson:"lastName" json:"lastName"`
+		TaxID           *string         `bson:"taxID" json:"taxId,omitempty"`
+		Passport        *string         `bson:"passport" json:"passport,omitempty"`
+		DateBirth       *time.Time      `bson:"dateBirth"json:"dateBirth,omitempty"`
+		KYC             *KYC            `bson:"kyc" json:"kyc,omitempty"`
+		ResidencyStatus ResidencyStatus `bson:"residencyStatus" json:"residencyStatus"`
+		Documents       []Document      `bson:"documents" json:"documents"`
+		Address         *Address        `bson:"address" json:"address,omitempty"`
 	}
 )
 
@@ -65,6 +65,10 @@ func (i *Individual) GetType() AccountType {
 }
 
 func (i *Individual) GetName() string {
+	if i.MiddleName != nil {
+		return i.FirstName + " " + *i.MiddleName + " " + i.LastName
+	}
+
 	return i.FirstName + " " + i.LastName
 }
 

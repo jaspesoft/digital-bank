@@ -1,7 +1,7 @@
 package mongo
 
 import (
-	"digital-bank/pkg/criteria_db/criteria"
+	criteria3 "digital-bank/internal/system/domain/criteria"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -16,14 +16,14 @@ type MongoQuery struct {
 }
 
 type MongoConverter struct {
-	criteria *criteria.Criteria
+	criteria *criteria3.Criteria
 }
 
 func NewMongoConverter() *MongoConverter {
 	return &MongoConverter{}
 }
 
-func (convert *MongoConverter) PrepareSearch(criteria *criteria.Criteria) MongoQuery {
+func (convert *MongoConverter) PrepareSearch(criteria *criteria3.Criteria) MongoQuery {
 	convert.criteria = criteria
 
 	bsonFilter := bson.D{}
@@ -40,28 +40,28 @@ func (convert *MongoConverter) PrepareSearch(criteria *criteria.Criteria) MongoQ
 	}
 }
 
-func (convert *MongoConverter) generateFilter(filters []criteria.Filter) bson.D {
+func (convert *MongoConverter) generateFilter(filters []criteria3.Filter) bson.D {
 	bsonFilter := bson.D{}
 	for _, filter := range filters {
 		filter.GetOP()
 		switch filter.GetOP() {
-		case criteria.EQUAL:
+		case criteria3.EQUAL:
 			bsonFilter = append(bsonFilter, bson.E{Key: filter.GetField(), Value: filter.GetValue()})
-		case criteria.NOT_EQUAL:
+		case criteria3.NOT_EQUAL:
 			bsonFilter = append(bsonFilter, bson.E{Key: filter.GetField(), Value: bson.M{"$ne": filter.GetValue()}})
-		case criteria.GT:
+		case criteria3.GT:
 			bsonFilter = append(bsonFilter, bson.E{Key: filter.GetField(), Value: bson.M{"$gt": filter.GetValue()}})
-		case criteria.GTE:
+		case criteria3.GTE:
 			bsonFilter = append(bsonFilter, bson.E{Key: filter.GetField(), Value: bson.M{"$gte": filter.GetValue()}})
-		case criteria.CONTAINS:
+		case criteria3.CONTAINS:
 			bsonFilter = append(bsonFilter, bson.E{Key: filter.GetField(), Value: primitive.Regex{Pattern: filter.GetValue().(string)}})
-		case criteria.IN:
+		case criteria3.IN:
 			bsonFilter = append(bsonFilter, bson.E{Key: filter.GetField(), Value: bson.M{"$in": filter.GetValue()}})
-		case criteria.NOT_IN:
+		case criteria3.NOT_IN:
 			bsonFilter = append(bsonFilter, bson.E{Key: filter.GetField(), Value: bson.M{"$nin": filter.GetValue()}})
-		case criteria.LT:
+		case criteria3.LT:
 			bsonFilter = append(bsonFilter, bson.E{Key: filter.GetField(), Value: bson.M{"$lt": filter.GetValue()}})
-		case criteria.LTE:
+		case criteria3.LTE:
 			bsonFilter = append(bsonFilter, bson.E{Key: filter.GetField(), Value: bson.M{"$lte": filter.GetValue()}})
 		}
 
@@ -70,7 +70,7 @@ func (convert *MongoConverter) generateFilter(filters []criteria.Filter) bson.D 
 	return bsonFilter
 }
 
-func (convert *MongoConverter) generateSort(order criteria.Order) bson.D {
+func (convert *MongoConverter) generateSort(order criteria3.Order) bson.D {
 	if order.IsAsc() {
 		return bson.D{{order.GetField(), 1}}
 	}
