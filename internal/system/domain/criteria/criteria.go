@@ -59,7 +59,7 @@ func (c *Criteria) GetOffset() int {
 	return c.offset
 }
 
-func (c *Criteria) GeNextPage(docs int64) *int {
+func (c *Criteria) GetNextPage(docs int64) *int {
 	var nextPage int
 
 	if int64(c.currentPage*c.GetLimit()) > docs {
@@ -69,5 +69,16 @@ func (c *Criteria) GeNextPage(docs int64) *int {
 
 	nextPage = c.currentPage + 1
 	return &nextPage
+
+}
+
+func (c *Criteria) GetPrevPage(nextPage *int) *int {
+
+	if nextPage == nil {
+		return nil
+	}
+
+	prevPage := *(nextPage) - 1
+	return &prevPage
 
 }

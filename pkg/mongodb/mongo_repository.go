@@ -17,6 +17,13 @@ type (
 		MongoConvert   *MongoConverter
 		MongoClient    *mongo.Client
 	}
+
+	MongoPaginate struct {
+		Cursor   *mongo.Cursor
+		NextPage *int
+		PrevPage *int
+		Count    int64
+	}
 )
 
 func NewMongoRepository(CollectionName string) *Repository {
@@ -36,7 +43,7 @@ func (repository *Repository) GetCollection() *mongo.Collection {
 	return repository.MongoClient.Database(os.Getenv("MONGO_DB")).Collection(repository.CollectionName)
 }
 
-func (repository *Repository) SearchByCriteria(criteria *criteria.Criteria) (*mongo.Cursor, int, int64, error) {
+func (repository *Repository) SearchByCriteria(criteria *criteria.Criteria) (*MongoPaginate, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -52,16 +59,23 @@ func (repository *Repository) SearchByCriteria(criteria *criteria.Criteria) (*mo
 	cursor, err := collection.Find(ctx, query.Filter, findOptions)
 	if err != nil {
 		fmt.Println(err)
-		return nil, 0, 0, err
+		return nil, err
 	}
 
 	docs, err := collection.CountDocuments(ctx, query.Filter)
 	if err != nil {
 		fmt.Println(err)
-		return nil, 0, 0, err
+		return nil, err
 	}
 
-	return cursor, *criteria.GeNextPage(docs), docs, nil
+	nextPage := criteria.GetNextPage(docs)
+
+	return &MongoPaginate{
+		Cursor:   cursor,
+		NextPage: nextPage,
+		PrevPage: criteria.GetPrevPage(nextPage),
+		Count:    docs,
+	}, nil
 
 }
 
