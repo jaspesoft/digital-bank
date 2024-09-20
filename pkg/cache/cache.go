@@ -9,22 +9,27 @@ import (
 	"time"
 )
 
-func RecoverData(key string) (string, error) {
+func RecoverData(key string) (map[string]interface{}, error) {
 	redis, err := RedisCnn()
 	if err != nil || redis == nil {
-		return "", err
+		return nil, err
 	}
 
 	val, err := redis.Get(context.TODO(), key).Result()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return val, nil
+	var data map[string]interface{}
+	err = json.Unmarshal([]byte(val), &data)
+	if err != nil {
+		return nil, err
+	}
 
+	return data, nil
 }
 
-func SaveData(key string, data string, expiration time.Duration) error {
+func SaveData(key string, data map[string]interface{}, expiration time.Duration) error {
 	redis, err := RedisCnn()
 	if err != nil || redis == nil {
 		return err
@@ -34,7 +39,12 @@ func SaveData(key string, data string, expiration time.Duration) error {
 		expiration = 10 * time.Minute
 	}
 
-	err = redis.Set(context.TODO(), key, data, expiration).Err()
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	err = redis.Set(context.TODO(), key, jsonData, expiration).Err()
 	if err != nil {
 		return err
 	}

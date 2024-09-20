@@ -64,12 +64,12 @@ func (l *Layer2) getToken() (string, error) {
 		return "", err
 	}
 
-	if layer2Token == "" {
+	if layer2Token["token"].(string) == "" {
 		log.Println("Token not found in cache")
 		return l.Auth()
 	}
 
-	return layer2Token, nil
+	return layer2Token["token"].(string), nil
 }
 
 func (l *Layer2) Auth() (string, error) {
@@ -106,7 +106,7 @@ func (l *Layer2) Auth() (string, error) {
 		return "", err
 	}
 
-	_ = cache.SaveData("layer2-token", resp.AccessToken, 0)
+	_ = cache.SaveData("layer2-token", map[string]interface{}{"token": resp.AccessToken}, 0)
 
 	return resp.AccessToken, nil
 }
