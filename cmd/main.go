@@ -1,9 +1,10 @@
 package main
 
 import (
-	"digital-bank/infrastructure/api/server"
+	"digital-bank/infrastructure/adapter"
 	"digital-bank/infrastructure/config"
 	"digital-bank/infrastructure/event"
+	"digital-bank/infrastructure/http/server"
 )
 
 // @title Digital Bank API
@@ -15,6 +16,8 @@ func main() {
 	config.LoadEnvironmentVariables()
 
 	event.SubscribeToEvents()
+
+	adapter.CreateCustomValidator()
 
 	server.Start()
 }

@@ -15,8 +15,8 @@ func NewSearchAppClient(repository systemdomain.AppClientRepository) *SearchAppC
 	}
 }
 
-func (s *SearchAppClient) Run(clientID string) systemdomain.Result[*systemdomain.AppClient] {
-	c, err := s.rep.GetClientByClientID(clientID)
+func (s *SearchAppClient) Run(companyID string) systemdomain.Result[*systemdomain.AppClient] {
+	c, err := s.rep.GetClientByClientID(companyID)
 
 	if err != nil {
 		return systemdomain.NewResult[*systemdomain.AppClient](nil, systemdomain.NewError(

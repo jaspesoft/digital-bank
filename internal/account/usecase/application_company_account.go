@@ -20,4 +20,5 @@ func NewApplicationAccount(accountRepository accountdomain.AccountRepository) *A
 
 func (a *ApplicationAccount) Run(req reqaccount.ApplicationAccountCompanyRequest) systemdomain.Result[string] {
 
+	return systemdomain.NewResult[string]("applicationId", nil)
 }

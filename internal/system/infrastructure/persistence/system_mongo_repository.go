@@ -26,10 +26,10 @@ func (r *SystemMongoRepository) Upsert(client *systemdomain.AppClient) error {
 	})
 }
 
-func (r *SystemMongoRepository) GetClientByClientID(clientID string) (*systemdomain.AppClient, error) {
+func (r *SystemMongoRepository) GetClientByClientID(companyID string) (*systemdomain.AppClient, error) {
 
 	filter := bson.D{
-		{"clientId", clientID},
+		{"clientId", companyID},
 	}
 
 	var account map[string]interface{}

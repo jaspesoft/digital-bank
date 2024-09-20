@@ -1,7 +1,7 @@
 package httpaccount
 
 import (
-	"digital-bank/infrastructure/api/middleware"
+	"digital-bank/infrastructure/http/middleware"
 	"github.com/gin-gonic/gin"
 )
 

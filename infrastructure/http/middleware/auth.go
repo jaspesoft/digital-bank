@@ -55,24 +55,23 @@ func AuthMiddleware(c *gin.Context) {
 		return
 	}
 
+	c.Set("CompanyID", m.CompanyID)
+
 	c.Next()
 
 }
 
 func searchClient(companyID string) systemdomain.Result[*systemdomain.AppClient] {
-	data, err := cache.RecoverData(companyID)
-
-	if err != nil {
-		return systemdomain.NewResult[*systemdomain.AppClient](nil, systemdomain.NewError(500, err.Error()))
-	}
-
-	if data != nil {
-		appClient := systemdomain.AppClientFromPrimitive(data)
-
-		return systemdomain.NewResult[*systemdomain.AppClient](appClient, nil)
-	}
 
 	resUserApp := systemusecase.NewSearchAppClient(
+		systempersistence.NewSystemRedisRepository(),
+	).Run(companyID)
+
+	if resUserApp.IsOk() {
+		return resUserApp
+	}
+
+	resUserApp = systemusecase.NewSearchAppClient(
 		systempersistence.NewSystemMongoRepository(),
 	).Run(companyID)
 

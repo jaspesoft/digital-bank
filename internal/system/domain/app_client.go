@@ -31,7 +31,7 @@ type (
 	}
 
 	AppClientRepository interface {
-		GetClientByClientID(clientID string) (*AppClient, error)
+		GetClientByClientID(companyID string) (*AppClient, error)
 		Upsert(client *AppClient) error
 	}
 )
