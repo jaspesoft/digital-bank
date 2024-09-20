@@ -76,7 +76,7 @@ func (i *Individual) GetIDNumber() string {
 	return i.DNI
 }
 
-func (i *Individual) SetAccountHolder(holder interface{}) *systemdomain.Result[string] {
+func (i *Individual) SetAccountHolder(holder interface{}) *systemdomain.Error {
 	if individual, ok := holder.(*Individual); ok {
 		i.DNI = individual.DNI
 		i.FirstName = individual.FirstName
@@ -93,10 +93,7 @@ func (i *Individual) SetAccountHolder(holder interface{}) *systemdomain.Result[s
 		return nil
 	}
 
-	return systemdomain.NewResult("", &systemdomain.ErrorMessage{
-		HttpCode: 400,
-		Message:  "The type of Account Holder is not Individual",
-	})
+	return systemdomain.NewError(400, "The type of Account Holder is not Individual")
 
 }
 

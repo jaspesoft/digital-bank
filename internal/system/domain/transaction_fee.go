@@ -73,3 +73,33 @@ func (f *TransactionFee) ToMap() map[string]interface{} {
 		"swap":        f.swap,
 	}
 }
+
+func TransactionFeeFromPrimitive(t map[string]interface{}) *TransactionFee {
+
+	return &TransactionFee{
+		domesticUSA: DomesticUSA{
+			ACH: struct {
+				IN  float64
+				OUT float64
+			}{
+				IN:  t["domesticUSA"].(map[string]interface{})["ACH"].(map[string]interface{})["IN"].(float64),
+				OUT: t["domesticUSA"].(map[string]interface{})["ACH"].(map[string]interface{})["OUT"].(float64),
+			},
+			FedWire: struct {
+				IN  float64
+				OUT float64
+			}{
+				IN:  t["domesticUSA"].(map[string]interface{})["FedWire"].(map[string]interface{})["IN"].(float64),
+				OUT: t["domesticUSA"].(map[string]interface{})["FedWire"].(map[string]interface{})["OUT"].(float64),
+			},
+		},
+		swiftUSA: SwiftUSA{
+			IN:  t["swiftUSA"].(map[string]interface{})["IN"].(float64),
+			OUT: t["swiftUSA"].(map[string]interface{})["OUT"].(float64),
+		},
+		swap: Swap{
+			Buy:  t["swap"].(map[string]interface{})["Buy"].(float64),
+			Sell: t["swap"].(map[string]interface{})["Sell"].(float64),
+		},
+	}
+}

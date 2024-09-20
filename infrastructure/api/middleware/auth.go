@@ -1,62 +1,85 @@
-package middlewares
+package middleware
 
 import (
+	systemdomain "digital-bank/internal/system/domain"
 	systempersistence "digital-bank/internal/system/infrastructure/persistence"
 	systemusecase "digital-bank/internal/system/usecase"
 	"digital-bank/pkg"
-	"encoding/base64"
+	"digital-bank/pkg/cache"
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
+
+type middleware struct {
+	CompanyID     string
+	Authorization string
+}
 
 func AuthMiddleware(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	bearerToken := strings.TrimPrefix(authHeader, "Bearer ")
 
-	base64Token, err := pkg.DecryptData(bearerToken, os.Getenv("PRIVATE_KEY"))
+	strToken, err := pkg.DecryptData(bearerToken, os.Getenv("PRIVATE_KEY"))
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		c.Abort()
 		return
-
 	}
 
-	decodedAuthToken, err := base64.StdEncoding.DecodeString(base64Token)
-
-	parts := strings.SplitN(string(decodedAuthToken), ":", 2)
-	if len(parts) != 2 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid token format"})
-		c.Abort()
-		return
-	}
-
-	jsonInformationCompany := gin.H{
-		"company": parts[0],
-		"secret":  parts[1],
-	}
-
-	resUserApp := systemusecase.NewSearchAppClient(
-		systempersistence.NewSystemMongoRepository(),
-	).Run(jsonInformationCompany["company"].(string))
-
-	if !resUserApp.IsOk() {
-		c.JSON(resUserApp.GetError().HttpCode, gin.H{"error": resUserApp.GetError().Message})
-		c.Abort()
-		return
-	}
-
-	if resUserApp.GetValue().Secret != jsonInformationCompany["secret"] {
+	var m middleware
+	err = json.Unmarshal([]byte(strToken), &m)
+	if err != nil {
+		fmt.Println("Error:", err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		c.Abort()
 		return
 	}
 
-	//c.Set("CompanyID", cl.CompanyID)
-	//c.Set("URLWebhook", cl.URLWebhook)
+	resAppClient := searchClient(m.CompanyID)
+
+	if !resAppClient.IsOk() {
+		c.JSON(resAppClient.GetError().GetHTTPCode(), gin.H{"error": resAppClient.GetError().Error()})
+		c.Abort()
+		return
+	}
+
+	if resAppClient.GetValue().GetTokenAPI() != strToken {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.Abort()
+		return
+	}
 
 	c.Next()
+
+}
+
+func searchClient(companyID string) systemdomain.Result[*systemdomain.AppClient] {
+	data, err := cache.RecoverData(companyID)
+
+	if err != nil {
+		return systemdomain.NewResult[*systemdomain.AppClient](nil, systemdomain.NewError(500, err.Error()))
+	}
+
+	if data != nil {
+		appClient := systemdomain.AppClientFromPrimitive(data)
+
+		return systemdomain.NewResult[*systemdomain.AppClient](appClient, nil)
+	}
+
+	resUserApp := systemusecase.NewSearchAppClient(
+		systempersistence.NewSystemMongoRepository(),
+	).Run(companyID)
+
+	if resUserApp.IsOk() {
+		_ = cache.SaveData(companyID, resUserApp.GetValue().ToMap(), 20*time.Minute)
+	}
+
+	return resUserApp
 
 }

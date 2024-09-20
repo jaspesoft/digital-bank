@@ -3,7 +3,7 @@ package systemdomain
 type (
 	Result[T any] struct {
 		Value T
-		Err   *ErrorMessage
+		Err   *Error
 	}
 
 	Notification struct {
@@ -17,8 +17,8 @@ type (
 	}
 )
 
-func NewResult[T any](value T, err *ErrorMessage) *Result[T] {
-	return &Result[T]{
+func NewResult[T any](value T, err *Error) Result[T] {
+	return Result[T]{
 		Value: value,
 		Err:   err,
 	}
@@ -32,7 +32,7 @@ func (r *Result[T]) GetValue() T {
 	return r.Value
 }
 
-func (r *Result[T]) GetError() *ErrorMessage {
+func (r *Result[T]) GetError() *Error {
 	if r.Err == nil {
 		return nil
 	}

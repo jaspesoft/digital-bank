@@ -1,21 +1,23 @@
 package systemdomain
 
 type (
-	ErrorMessage struct {
-		HttpCode int
-		Message  string
-	}
-
-	Error interface {
-		Error() string
-		GetHTTPCode() int
+	Error struct {
+		httpCode int
+		message  string
 	}
 )
 
-func (e *ErrorMessage) Error() string {
-	return e.Message
+func NewError(httpCode int, message string) *Error {
+	return &Error{
+		httpCode: httpCode,
+		message:  message,
+	}
 }
 
-func (e *ErrorMessage) GetHTTPCode() int {
-	return e.HttpCode
+func (e *Error) Error() string {
+	return e.message
+}
+
+func (e *Error) GetHTTPCode() int {
+	return e.httpCode
 }

@@ -43,17 +43,17 @@ type (
 	}
 
 	Company struct {
-		Name                      string                `bson:"name" json:"name"`
+		Name                      string                `bson:"name" json:"name" binding:"required"`
 		PrimaryBusiness           string                `bson:"primaryBusiness" json:"primaryBusiness"`
 		DescriptionBusinessNature string                `bson:"descriptionBusinessNature" json:"descriptionBusinessNature"`
 		RegisterNumber            string                `bson:"registerNumber" json:"registerNumber"`
-		NAICS                     string                `bson:"naics" json:"naics"`
+		NAICS                     string                `bson:"naics" json:"naics" binding:"required"`
 		NAICSDescription          string                `bson:"naicsDscription" json:"naicsDescription"`
-		CompanyType               CompanyType           `bson:"companyType" json:"companyType"`
-		EstablishedDate           time.Time             `bson:"establishedDate" json:"establishedDate"`
-		WebSite                   string                `bson:"webSite" json:"webSite"`
-		RegisteredAddress         Address               `bson:"registeredAddress "json:"registeredAddress"`
-		PhysicalAddress           Address               `bson:"physicalAddress" json:"physicalAddress,omitempty"`
+		CompanyType               CompanyType           `bson:"companyType" json:"companyType" binding:"required"`
+		EstablishedDate           time.Time             `bson:"establishedDate" json:"establishedDate" time_utc:"1"`
+		WebSite                   string                `bson:"webSite" json:"webSite" binding:"required" `
+		RegisteredAddress         Address               `bson:"registeredAddress "json:"registeredAddress" `
+		PhysicalAddress           Address               `bson:"physicalAddress" json:"physicalAddress,omitempty" `
 		PhoneCountry              string                `bson:"phoneCountry" json:"phoneCountry"`
 		PhoneNumber               string                `bson:"phoneNumber" json:"phoneNumber"`
 		Documents                 []Document            `bson:"documents" json:"documents"`
@@ -71,7 +71,7 @@ func (c *Company) GetName() string {
 	return c.Name
 }
 
-func (c *Company) SetAccountHolder(holder interface{}) *systemdomain.Result[string] {
+func (c *Company) SetAccountHolder(holder interface{}) *systemdomain.Error {
 	if company, ok := holder.(*Company); ok {
 		c.Name = company.Name
 		c.PrimaryBusiness = company.PrimaryBusiness
@@ -94,10 +94,7 @@ func (c *Company) SetAccountHolder(holder interface{}) *systemdomain.Result[stri
 		return nil
 	}
 
-	return systemdomain.NewResult("", &systemdomain.ErrorMessage{
-		HttpCode: 400,
-		Message:  "The type of Account Holder is not Company",
-	})
+	return systemdomain.NewError(400, "The type of Account Holder is not Company")
 }
 
 func (c *Company) SetKYC(kyc KYC) {
@@ -140,7 +137,7 @@ func (c *Company) GetIDNumber() string {
 	return c.RegisterNumber
 }
 
-func (c *Company) setDocument(document Document, dni string) *systemdomain.Result[string] {
+func (c *Company) setDocument(document Document, dni string) *systemdomain.Error {
 	// assign or updated document to company
 	if c.GetIDNumber() == dni {
 		documentExist := false
@@ -155,15 +152,14 @@ func (c *Company) setDocument(document Document, dni string) *systemdomain.Resul
 		if !documentExist {
 			c.Documents = append(c.Documents, document)
 		}
+
 		return nil
 	}
 
 	if len(c.Partners) == 0 {
 		fmt.Println("Company partners not found")
-		return systemdomain.NewResult("", &systemdomain.ErrorMessage{
-			HttpCode: 404,
-			Message:  "Company partners not found",
-		})
+		return systemdomain.NewError(404, "Company partners not found")
+
 	}
 
 	// assign or updated document to partner

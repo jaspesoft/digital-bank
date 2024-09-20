@@ -20,7 +20,7 @@ type (
 		companyID             string          `json:"companyId"`
 		secret                string          `json:"secret"`
 		technologyProviderFee TransactionFee  `json:"technologyProviderFee"`
-		commissions           TransactionFee  `json:"comissions"`
+		commissions           TransactionFee  `json:"commissions"`
 		status                AppClientStatus `json:"status"`
 		createdAt             time.Time       `json:"createdAt"`
 	}
@@ -31,14 +31,14 @@ type (
 	}
 
 	AppClientRepository interface {
-		GetClient(clientID string) (*AppClient, error)
+		GetClientByClientID(clientID string) (*AppClient, error)
 		Upsert(client *AppClient) error
 	}
 )
 
-func NewClient(clintID EntityID, name string, commissions TransactionFee, technologyProviderFee TransactionFee) AppClient {
+func NewClient(clintID EntityID, name string, commissions TransactionFee, technologyProviderFee TransactionFee) *AppClient {
 
-	client := AppClient{
+	client := &AppClient{
 		clientID:              clintID.GetID(),
 		name:                  name,
 		status:                AppClientStatusActive,
@@ -99,4 +99,17 @@ func (c *AppClient) ToMap() map[string]interface{} {
 
 func (c *AppClient) Disable() {
 	c.status = AppClientStatusDisabled
+}
+
+func AppClientFromPrimitive(client map[string]interface{}) *AppClient {
+	return &AppClient{
+		clientID:              client["clientId"].(string),
+		name:                  client["Name"].(string),
+		companyID:             client["companyId"].(string),
+		secret:                client["secret"].(string),
+		status:                AppClientStatus(client["status"].(string)),
+		commissions:           *TransactionFeeFromPrimitive(client["commissions"].(map[string]interface{})),
+		technologyProviderFee: *TransactionFeeFromPrimitive(client["technologyProviderFee"].(map[string]interface{})),
+		createdAt:             client["createdAt"].(time.Time),
+	}
 }
