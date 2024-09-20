@@ -1,7 +1,7 @@
 package server
 
 import (
-	"digital-bank/infrastructure/api/middleware"
+	"digital-bank/infrastructure/http/middleware"
 	httpaccount "digital-bank/internal/account/infrastructure/http"
 	httpsystem "digital-bank/internal/system/infrastructure/http"
 	"github.com/gin-gonic/gin"
