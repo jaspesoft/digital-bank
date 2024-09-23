@@ -1,9 +1,8 @@
-package controllers
+package accountcontroller
 
 import (
 	requestsaccount "digital-bank/internal/account/infrastructure/http/requests"
-	systempersistence "digital-bank/internal/system/infrastructure/persistence"
-	systemusecase "digital-bank/internal/system/usecase"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -16,12 +15,16 @@ func ApplicationAccountCompanyController(c *gin.Context) {
 		return
 	}
 
-	companyID, _ := c.Get("CompanyID")
+	//companyID, _ := c.Get("CompanyID")
 
-	appClient := systemusecase.NewSearchAppClient(
-		systempersistence.NewSystemRedisRepository(),
-	).Run((companyID.(string)))
+	//appClient := systemusecase.NewSearchAppClient(
+	//	systempersistence.NewSystemRedisRepository(),
+	//).Run((companyID.(string)))
+	//
+	//jsonApplicationAccountCompanyRequest.OwnerRecord = appClient.GetValue().GetIdentifier()
 
-	jsonApplicationAccountCompanyRequest.OwnerRecord = appClient.GetValue().GetIdentifier()
+	fmt.Println(jsonApplicationAccountCompanyRequest)
+
+	c.JSON(http.StatusOK, gin.H{"message": "ok", "data": jsonApplicationAccountCompanyRequest})
 
 }

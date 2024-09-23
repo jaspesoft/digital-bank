@@ -4,7 +4,7 @@ services:
     image: digital-bank
     build: .
     restart: always
-    command: nodemon --exec go run cmd/main.go --signal SIGTERM
+    command: nodemon --exec go run ./cmd/main.go --signal SIGTERM
     environment:
       GO_ENV: local
 
@@ -12,8 +12,7 @@ services:
       REDIS_PORT: 6379
 
     volumes:
-      - ./:/digital-bank
-
+      - ./:/app
 
     ports:
       - "3200:8080"
@@ -29,8 +28,6 @@ services:
     container_name: digital-bank-redis
     networks:
       - main
-
-
 
 networks:
   main:

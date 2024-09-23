@@ -16,4 +16,5 @@ RUN go build -o digital-bank cmd/main.go
 
 EXPOSE 8080
 
-CMD ["./digital-bank"]
+CMD ["nodemon", "--exec", "go", "run", "./cmd/main.go", "--signal", "SIGTERM"]
+

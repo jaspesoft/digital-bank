@@ -2,8 +2,6 @@ package main
 
 import (
 	"digital-bank/infrastructure/adapter"
-	"digital-bank/infrastructure/config"
-	"digital-bank/infrastructure/event"
 	"digital-bank/infrastructure/http/server"
 )
 
@@ -13,9 +11,9 @@ import (
 // @host localhost:8080
 // @BasePath /
 func main() {
-	config.LoadEnvironmentVariables()
+	//config.LoadEnvironmentVariables()
 
-	event.SubscribeToEvents()
+	//event.SubscribeToEvents()
 
 	adapter.CreateCustomValidator()
 

@@ -19,6 +19,23 @@ const (
 	NON_PROFIT CompanyType = "NON_PROFIT"
 )
 
+type CustomTime struct {
+	time.Time
+}
+
+const ctLayout = "2006-01-02"
+
+func (ct *CustomTime) UnmarshalJSON(data []byte) (err error) {
+	str := string(data)
+	str = str[1 : len(str)-1] // Remove quotes
+	ct.Time, err = time.Parse(ctLayout, str)
+	return
+}
+
+func (ct CustomTime) MarshalJSON() ([]byte, error) {
+	return []byte(`"` + ct.Format(ctLayout) + `"`), nil
+}
+
 type (
 	CompanyType string
 
@@ -30,36 +47,46 @@ type (
 		UpdatePartnerKYC(dni string, kyc *KYC)
 	}
 
-	CompanyQuestionnaire struct {
-		PurposeAccount                         string `bson:"purposeAccount" json:"purposeAccount"`
-		SourceAssetsAndIncome                  string `bson:"sourceAssetsAndIncome" json:"sourceAssetsAndIncome"`
-		IntendedUseAccount                     string `bson:"intendedUseAccount" json:"intendedUseAccount"`
-		AnticipatedTypesAssets                 string `bson:"anticipatedTypesAssets" json:"anticipatedTypesAssets"`
-		AnticipatedMonthlyCashVolume           string `bson:"anticipatedMonthlyCashVolume" json:"anticipatedMonthlyCashVolume"`
-		AnticipatedTradingPatterns             string `bson:"anticipatedTradingPatterns" json:"anticipatedTradingPatterns"`
-		AnticipatedMonthlyTransactionsIncoming string `bson:"anticipatedMonthlyTransactionsIncoming" json:"anticipatedMonthlyTransactionsIncoming"`
-		AnticipatedMonthlyTransactionsOutgoing string `bson:"anticipatedMonthlyTransactionsOutgoing" json:"anticipatedMonthlyTransactionsOutgoing"`
-		NatureBusinessCompany                  string `bson:"natureBusinessCompany" json:"natureBusinessCompany"`
+	InvestmentProfile struct {
+		PrimarySourceOfFunds              string `bson:"primarySourceOfFunds" json:"primarySourceOfFunds"`
+		UsdValueOfFiat                    string `bson:"usdValueOfFiat" json:"usdValueOfFiat"`
+		UsdValueOfCrypto                  string `bson:"usdValueOfCrypto" json:"usdValueOfCrypto"`
+		MonthlyDeposits                   string `bson:"monthlyDeposits" json:"monthlyDeposits"`
+		MonthlyCryptoDeposits             string `bson:"monthlyCryptoDeposits" json:"monthlyCryptoDeposits"`
+		MonthlyInvestmentDeposit          string `bson:"monthlyInvestmentDeposit" json:"monthlyInvestmentDeposit"`
+		MonthlyCryptoInvestmentDeposit    string `bson:"monthlyCryptoInvestmentDeposit" json:"monthlyCryptoInvestmentDeposit"`
+		MonthlyWithdrawals                string `bson:"monthlyWithdrawals" json:"monthlyWithdrawals"`
+		MonthlyCryptoWithdrawals          string `bson:"monthlyCryptoWithdrawals" json:"monthlyCryptoWithdrawals"`
+		MonthlyInvestmentWithdrawal       string `bson:"monthlyInvestmentWithdrawal" json:"monthlyInvestmentWithdrawal"`
+		MonthlyCryptoInvestmentWithdrawal string `bson:"monthlyCryptoInvestmentWithdrawal" json:"monthlyCryptoInvestmentWithdrawal"`
+	}
+
+	KYCProfile struct {
+		DescriptionBusinessNature     string   `json:"descriptionBusinessNature" bson:"descriptionBusinessNature"`
+		BusinessJurisdictions         []string `json:"businessJurisdictions" bson:"businessJurisdictions"`
+		FundsSendReceiveJurisdictions []string `json:"fundsSendReceiveJurisdictions" bson:"fundsSendReceiveJurisdictions"`
+		EngageInActivities            []string `json:"engageInActivities" bson:"engageInActivities"`
+		RegulatedStatus               string   `json:"regulatedStatus" bson:"regulatedStatus"`
+		PrimaryBusiness               string   `json:"primaryBusiness" bson:"primaryBusiness"`
 	}
 
 	Company struct {
-		Name                      string                `bson:"name" json:"name" binding:"required"`
-		PrimaryBusiness           string                `bson:"primaryBusiness" json:"primaryBusiness"`
-		DescriptionBusinessNature string                `bson:"descriptionBusinessNature" json:"descriptionBusinessNature"`
-		RegisterNumber            string                `bson:"registerNumber" json:"registerNumber"`
-		NAICS                     string                `bson:"naics" json:"naics" binding:"required"`
-		NAICSDescription          string                `bson:"naicsDscription" json:"naicsDescription"`
-		CompanyType               CompanyType           `bson:"companyType" json:"companyType" binding:"required"`
-		EstablishedDate           time.Time             `bson:"establishedDate" json:"establishedDate" time_utc:"1"`
-		WebSite                   string                `bson:"webSite" json:"webSite" binding:"required" `
-		RegisteredAddress         Address               `bson:"registeredAddress "json:"registeredAddress" `
-		PhysicalAddress           Address               `bson:"physicalAddress" json:"physicalAddress,omitempty" `
-		PhoneCountry              string                `bson:"phoneCountry" json:"phoneCountry"`
-		PhoneNumber               string                `bson:"phoneNumber" json:"phoneNumber"`
-		Documents                 []Document            `bson:"documents" json:"documents"`
-		KYC                       *KYC                  `bson:"kyc" json:"kyc,omitempty"`
-		Questionnaire             *CompanyQuestionnaire `bson:"questionnaire" json:"questionnaire"`
-		Partners                  []Individual          `bson:"partners" json:"partners"`
+		Name              string             `bson:"name" json:"name" binding:"required"`
+		RegisterNumber    string             `bson:"registerNumber" json:"registerNumber"`
+		NAICS             string             `bson:"naics" json:"naics" binding:"required"`
+		NAICSDescription  string             `bson:"naicsDscription" json:"naicsDescription"`
+		CompanyType       CompanyType        `bson:"companyType" json:"companyType"`
+		EstablishedDate   CustomTime         `bson:"establishedDate" json:"establishedDate"`
+		WebSite           string             `bson:"webSite" json:"webSite" binding:"required" `
+		RegisteredAddress Address            `bson:"registeredAddress "json:"registeredAddress" `
+		PhysicalAddress   Address            `bson:"physicalAddress" json:"physicalAddress,omitempty" `
+		PhoneCountry      string             `bson:"phoneCountry" json:"phoneCountry"`
+		PhoneNumber       string             `bson:"phoneNumber" json:"phoneNumber"`
+		Documents         []Document         `bson:"documents" json:"documents"`
+		KYC               *KYC               `bson:"kyc" json:"kyc,omitempty"`
+		InvestmentProfile *InvestmentProfile `bson:"investmentProfile" json:"investmentProfile"`
+		KYCProfile        *KYCProfile        `bson:"kycProfile" json:"kycProfile"`
+		Partners          []Individual       `bson:"partners" json:"partners"`
 	}
 )
 
@@ -74,8 +101,6 @@ func (c *Company) GetName() string {
 func (c *Company) SetAccountHolder(holder interface{}) *systemdomain.Error {
 	if company, ok := holder.(*Company); ok {
 		c.Name = company.Name
-		c.PrimaryBusiness = company.PrimaryBusiness
-		c.DescriptionBusinessNature = company.DescriptionBusinessNature
 		c.RegisterNumber = company.RegisterNumber
 		c.NAICS = company.NAICS
 		c.NAICSDescription = company.NAICSDescription
@@ -88,7 +113,7 @@ func (c *Company) SetAccountHolder(holder interface{}) *systemdomain.Error {
 		c.PhoneNumber = company.PhoneNumber
 		c.Documents = company.Documents
 		c.KYC = company.KYC
-		c.Questionnaire = company.Questionnaire
+		c.InvestmentProfile = company.InvestmentProfile
 		c.Partners = company.Partners
 
 		return nil
@@ -188,22 +213,20 @@ func (c *Company) setDocument(document Document, dni string) *systemdomain.Error
 
 func (c *Company) ToMap() map[string]interface{} {
 	return map[string]interface{}{
-		"name":                      c.Name,
-		"primaryBusiness":           c.PrimaryBusiness,
-		"descriptionBusinessNature": c.DescriptionBusinessNature,
-		"registerNumber":            c.RegisterNumber,
-		"naics":                     c.NAICS,
-		"naicsDescription":          c.NAICSDescription,
-		"companyType":               c.CompanyType,
-		"establishedDate":           c.EstablishedDate,
-		"webSite":                   c.WebSite,
-		"registeredAddress":         c.RegisteredAddress,
-		"physicalAddress":           c.PhysicalAddress,
-		"phoneCountry":              c.PhoneCountry,
-		"phoneNumber":               c.PhoneNumber,
-		"documents":                 c.Documents,
-		"kyc":                       c.KYC,
-		"questionnaire":             c.Questionnaire,
-		"partners":                  c.Partners,
+		"name":              c.Name,
+		"registerNumber":    c.RegisterNumber,
+		"naics":             c.NAICS,
+		"naicsDescription":  c.NAICSDescription,
+		"companyType":       c.CompanyType,
+		"establishedDate":   c.EstablishedDate,
+		"webSite":           c.WebSite,
+		"registeredAddress": c.RegisteredAddress,
+		"physicalAddress":   c.PhysicalAddress,
+		"phoneCountry":      c.PhoneCountry,
+		"phoneNumber":       c.PhoneNumber,
+		"documents":         c.Documents,
+		"kyc":               c.KYC,
+		"investmentProfile": c.InvestmentProfile,
+		"partners":          c.Partners,
 	}
 }

@@ -2,7 +2,6 @@ package accountdomain
 
 import (
 	systemdomain "digital-bank/internal/system/domain"
-	"time"
 )
 
 const (
@@ -52,7 +51,7 @@ type (
 		LastName        string          `bson:"lastName" json:"lastName"`
 		TaxID           *string         `bson:"taxID" json:"taxId,omitempty"`
 		Passport        *string         `bson:"passport" json:"passport,omitempty"`
-		DateBirth       *time.Time      `bson:"dateBirth"json:"dateBirth,omitempty"`
+		DateBirth       *CustomTime     `bson:"dateBirth" json:"dateBirth,omitempty" time_utc:"1"`
 		KYC             *KYC            `bson:"kyc" json:"kyc,omitempty"`
 		ResidencyStatus ResidencyStatus `bson:"residencyStatus" json:"residencyStatus"`
 		Documents       []Document      `bson:"documents" json:"documents"`

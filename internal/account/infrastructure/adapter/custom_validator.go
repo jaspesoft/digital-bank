@@ -7,18 +7,19 @@ import (
 )
 
 var ValidateCompanyType validator.Func = func(fl validator.FieldLevel) bool {
-	speed := fl.Field().String()
-	return speed == string(accountdomain.PRIVATE) || speed == string(accountdomain.PUBLIC) ||
-		speed == string(accountdomain.HNWI) || speed == string(accountdomain.LLC) || speed == string(accountdomain.LLP) ||
-		speed == string(accountdomain.LP) || speed == string(accountdomain.S_CORP) || speed == string(accountdomain.SOLE_PROP) ||
-		speed == string(accountdomain.TRUST) || speed == string(accountdomain.NON_PROFIT)
+	str := fl.Field().String()
+
+	return str == string(accountdomain.PRIVATE) || str == string(accountdomain.PUBLIC) ||
+		str == string(accountdomain.HNWI) || str == string(accountdomain.LLC) || str == string(accountdomain.LLP) ||
+		str == string(accountdomain.LP) || str == string(accountdomain.S_CORP) || str == string(accountdomain.SOLE_PROP) ||
+		str == string(accountdomain.TRUST) || str == string(accountdomain.NON_PROFIT)
 
 }
 
 var ValidateResidencyStatus validator.Func = func(fl validator.FieldLevel) bool {
-	speed := fl.Field().String()
-	return speed == string(accountdomain.US_CITIZEN) || speed == string(accountdomain.RESIDENT_ALIEN) ||
-		speed == string(accountdomain.NON_RESIDENT_ALIEN)
+	str := fl.Field().String()
+	return str == string(accountdomain.US_CITIZEN) || str == string(accountdomain.RESIDENT_ALIEN) ||
+		str == string(accountdomain.NON_RESIDENT_ALIEN)
 }
 
 func AccountCustomValidate() {
