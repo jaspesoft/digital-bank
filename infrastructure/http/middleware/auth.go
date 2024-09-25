@@ -16,8 +16,8 @@ import (
 )
 
 type middleware struct {
-	CompanyID     string
-	Authorization string
+	CompanyID     string `json:"companyId"`
+	Authorization string `json:"authorization"`
 }
 
 func AuthMiddleware(c *gin.Context) {
