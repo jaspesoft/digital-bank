@@ -28,7 +28,7 @@ func (s *AWSEventBus) Emit(data interface{}, topic systemdomain.Topic) error {
 	str, _ := data.(string)
 	params := &sns.PublishInput{
 		Message:  aws.String(str),
-		TopicArn: aws.String(fmt.Sprintf("arn:aws:sns:%s:837217772820:%s", os.Getenv("AWS_REGION"), topic)),
+		TopicArn: aws.String(fmt.Sprintf("arn:aws:sns:%s:%s:%s", os.Getenv("AWS_REGION"), os.Getenv("AWS_ACCOUNT"), topic)),
 	}
 
 	result, err := s.sns.Publish(params)
@@ -43,7 +43,7 @@ func (s *AWSEventBus) Emit(data interface{}, topic systemdomain.Topic) error {
 }
 
 func (s *AWSEventBus) Subscribe(topic systemdomain.Topic, callback func(Message)) {
-	queueURL := fmt.Sprintf("https://sqs.%s.amazonaws.com/837217772820/%s-sqs", os.Getenv("AWS_REGION"), topic)
+	queueURL := fmt.Sprintf("https://sqs.%s.amazonaws.com/%s/%s-sqs", os.Getenv("AWS_REGION"), os.Getenv("AWS_ACCOUNT"), topic)
 
 	params := &sqs.ReceiveMessageInput{
 		QueueUrl:            aws.String(queueURL),

@@ -11,6 +11,10 @@ services:
       REDIS_HOST: digital-bank-redis
       REDIS_PORT: 6379
 
+      AWS_REGION: sa-east-1
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+
     volumes:
       - ./:/app
 
