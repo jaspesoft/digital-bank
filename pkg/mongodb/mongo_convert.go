@@ -90,7 +90,8 @@ func (convert *MongoConverter) PrepareUpsert(data interface{}) (bson.M, error) {
 	numFields := t.NumField()
 	for i := 0; i < numFields; i++ {
 		field := t.Field(i)
-		fieldName := field.Tag.Get("bson")
+		fieldName := field.Tag.Get("json")
+
 		if fieldName == "" {
 			continue
 		}

@@ -26,7 +26,7 @@ type (
 		typeAccount    AccountType                      `bson:"type" json:"clientType"`
 		accountHolder  AccountHolder                    `bson:"accountHolder" json:"accountHolder"`
 		status         AccountStatus                    `bson:"status" json:"status"`
-		transactionFee systemdomain.TransactionFee      `bson:"transactionFee" json:"transactionFee"`
+		transactionFee *systemdomain.TransactionFee     `bson:"transactionFee" json:"transactionFee"`
 		createdAt      time.Time                        `bson:"createdAt" json:"createdAt"`
 		approvedAt     time.Time                        `bson:"createdAt" json:"approvedAt"`
 		ownerRecord    systemdomain.AppClientIdentifier `bson:"clientOwnerRecord" json:"ownerRecord"`
@@ -72,7 +72,7 @@ func (a *Account) GetStatus() AccountStatus {
 	return a.status
 }
 
-func (a *Account) GetTransactionFee() systemdomain.TransactionFee {
+func (a *Account) GetTransactionFee() *systemdomain.TransactionFee {
 	return a.transactionFee
 }
 

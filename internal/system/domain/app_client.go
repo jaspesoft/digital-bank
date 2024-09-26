@@ -15,19 +15,21 @@ type (
 	AppClientStatus string
 
 	AppClient struct {
-		clientID              string          `json:"clientId"`
-		name                  string          `json:"name"`
-		companyID             string          `json:"companyId"`
-		secret                string          `json:"secret"`
-		technologyProviderFee TransactionFee  `json:"technologyProviderFee"`
-		commissions           TransactionFee  `json:"commissions"`
-		status                AppClientStatus `json:"status"`
-		createdAt             time.Time       `json:"createdAt"`
+		ClientID              string          `json:"clientId"`
+		CompanyName           string          `json:"companyName"`
+		Email                 string          `json:"email"`
+		PhoneNumber           string          `json:"phoneNumber"`
+		CompanyID             string          `json:"companyId"`
+		Secret                string          `json:"secret"`
+		TechnologyProviderFee *TransactionFee `json:"technologyProviderFee"`
+		Commissions           *TransactionFee `json:"commissions"`
+		Status                AppClientStatus `json:"status"`
+		CreatedAt             time.Time       `json:"createdAt"`
 	}
 
 	AppClientIdentifier struct {
-		ClientID string `json:"clientId"`
-		Name     string `json:"name"`
+		ClientID    string `json:"clientId"`
+		CompanyName string `json:"companyName"`
 	}
 
 	AppClientRepository interface {
@@ -36,14 +38,19 @@ type (
 	}
 )
 
-func NewClient(clintID EntityID, name string, commissions TransactionFee, technologyProviderFee TransactionFee) *AppClient {
+func NewAppClient(
+	clintID EntityID, companyName, email, phoneNumber string, commissions *TransactionFee, technologyProviderFee *TransactionFee,
+) *AppClient {
 
 	client := &AppClient{
-		clientID:              clintID.GetID(),
-		name:                  name,
-		status:                AppClientStatusActive,
-		commissions:           commissions,
-		technologyProviderFee: technologyProviderFee,
+		ClientID:              clintID.GetID(),
+		CompanyName:           companyName,
+		Email:                 email,
+		PhoneNumber:           phoneNumber,
+		Status:                AppClientStatusActive,
+		Commissions:           commissions,
+		TechnologyProviderFee: technologyProviderFee,
+		CreatedAt:             time.Now().UTC(),
 	}
 
 	client.GenerateNewCredentialsAPI()
@@ -52,64 +59,69 @@ func NewClient(clintID EntityID, name string, commissions TransactionFee, techno
 }
 
 func (c *AppClient) IsActive() bool {
-	return c.status == AppClientStatusActive
+	return c.Status == AppClientStatusActive
 }
 
 func (c *AppClient) GetClientID() string {
-	return c.clientID
+	return c.ClientID
 }
 
 func (c *AppClient) GetStatus() AppClientStatus {
-	return c.status
+	return c.Status
 
 }
 
 func (c *AppClient) GetTokenAPI() string {
-	data := c.companyID + ":" + c.secret
+	data := c.CompanyID + ":" + c.Secret
 	return base64.StdEncoding.EncodeToString([]byte(data))
 }
 
 func (c *AppClient) GenerateNewCredentialsAPI() {
-	c.companyID = internal.GenerateRandomString(16)
-	c.secret = base64.StdEncoding.EncodeToString([]byte(internal.GenerateRandomString(32)))
+	c.CompanyID = internal.GenerateRandomString(16)
+	c.Secret = base64.StdEncoding.EncodeToString([]byte(internal.GenerateRandomString(32)))
 }
 
 func (c *AppClient) GetIdentifier() AppClientIdentifier {
 	return AppClientIdentifier{
-		ClientID: c.clientID,
-		Name:     c.name,
+		ClientID:    c.ClientID,
+		CompanyName: c.CompanyName,
 	}
 }
 
-func (c *AppClient) GetCommissionsDefault() TransactionFee {
-	return c.commissions
+func (c *AppClient) GetCommissionsDefault() *TransactionFee {
+	return c.Commissions
 }
 
 func (c *AppClient) ToMap() map[string]interface{} {
 	return map[string]interface{}{
-		"clientId":              c.clientID,
-		"name":                  c.name,
-		"companyId":             c.companyID,
-		"secret":                c.secret,
-		"status":                c.status,
-		"commissions":           c.commissions.ToMap(),
-		"technologyProviderFee": c.technologyProviderFee.ToMap(),
+		"clientId":              c.ClientID,
+		"companyName":           c.CompanyName,
+		"companyId":             c.CompanyID,
+		"createdAt":             c.CreatedAt,
+		"email":                 c.Email,
+		"phoneNumber":           c.PhoneNumber,
+		"secret":                c.Secret,
+		"status":                c.Status,
+		"commissions":           c.Commissions.ToMap(),
+		"technologyProviderFee": c.TechnologyProviderFee.ToMap(),
 	}
 }
 
 func (c *AppClient) Disable() {
-	c.status = AppClientStatusDisabled
+	c.Status = AppClientStatusDisabled
 }
 
 func AppClientFromPrimitive(client map[string]interface{}) *AppClient {
 	return &AppClient{
-		clientID:              client["clientId"].(string),
-		name:                  client["Name"].(string),
-		companyID:             client["companyId"].(string),
-		secret:                client["secret"].(string),
-		status:                AppClientStatus(client["status"].(string)),
-		commissions:           *TransactionFeeFromPrimitive(client["commissions"].(map[string]interface{})),
-		technologyProviderFee: *TransactionFeeFromPrimitive(client["technologyProviderFee"].(map[string]interface{})),
-		createdAt:             client["createdAt"].(time.Time),
+		ClientID:              client["clientId"].(string),
+		CompanyName:           client["companyName"].(string),
+		CompanyID:             client["companyId"].(string),
+		Secret:                client["secret"].(string),
+		Status:                AppClientStatus(client["status"].(string)),
+		Commissions:           TransactionFeeFromPrimitive(client["commissions"].(map[string]interface{})),
+		TechnologyProviderFee: TransactionFeeFromPrimitive(client["technologyProviderFee"].(map[string]interface{})),
+		CreatedAt:             client["createdAt"].(time.Time),
+		Email:                 client["email"].(string),
+		PhoneNumber:           client["phoneNumber"].(string),
 	}
 }

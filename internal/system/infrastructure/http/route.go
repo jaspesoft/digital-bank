@@ -1,6 +1,7 @@
-package httpsystem
+package systemhttp
 
 import (
+	systemcontrollers "digital-bank/internal/system/infrastructure/http/controllers"
 	"digital-bank/pkg"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
@@ -40,5 +41,10 @@ func SystemRoute(r *gin.Engine) {
 
 		c.String(http.StatusOK, t)
 	})
+
+	g := r.Group("/api/v1/system")
+	{
+		g.POST("/onboarding-client", systemcontrollers.OnboardingAppClient)
+	}
 
 }

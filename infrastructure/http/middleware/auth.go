@@ -64,7 +64,7 @@ func AuthMiddleware(c *gin.Context) {
 func searchClient(companyID string) systemdomain.Result[*systemdomain.AppClient] {
 
 	resUserApp := systemusecase.NewSearchAppClient(
-		systempersistence.NewSystemRedisRepository(),
+		systempersistence.NewAppClientRedisRepository(),
 	).Run(companyID)
 
 	if resUserApp.IsOk() {
@@ -72,7 +72,7 @@ func searchClient(companyID string) systemdomain.Result[*systemdomain.AppClient]
 	}
 
 	resUserApp = systemusecase.NewSearchAppClient(
-		systempersistence.NewSystemMongoRepository(),
+		systempersistence.NewAppClientMongoRepository(),
 	).Run(companyID)
 
 	if resUserApp.IsOk() {

@@ -42,7 +42,7 @@ func (r *AccountRepository) Paginate(cri *criteria.Criteria) (criteria.Paginate,
 }
 
 func (r *AccountRepository) Save(account accountdomain.Account) error {
-	return r.repo.Persist(account.ToMap(), &bson.D{
+	return r.repo.Persist(account, &bson.D{
 		{"accountId", account.GetAccountID()},
 	})
 }

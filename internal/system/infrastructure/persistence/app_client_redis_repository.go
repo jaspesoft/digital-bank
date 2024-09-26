@@ -7,15 +7,15 @@ import (
 )
 
 type (
-	SystemRedisRepository struct {
+	AppClientRedisRepository struct {
 	}
 )
 
-func NewSystemRedisRepository() *SystemRedisRepository {
-	return &SystemRedisRepository{}
+func NewAppClientRedisRepository() *AppClientRedisRepository {
+	return &AppClientRedisRepository{}
 }
 
-func (r *SystemRedisRepository) GetClientByClientID(companyID string) (*systemdomain.AppClient, error) {
+func (r *AppClientRedisRepository) GetClientByClientID(companyID string) (*systemdomain.AppClient, error) {
 	data, err := cache.RecoverData(companyID)
 
 	if err != nil {
@@ -30,7 +30,7 @@ func (r *SystemRedisRepository) GetClientByClientID(companyID string) (*systemdo
 
 }
 
-func (r *SystemRedisRepository) Upsert(client *systemdomain.AppClient) error {
+func (r *AppClientRedisRepository) Upsert(client *systemdomain.AppClient) error {
 	panic("not implemented for redis") // TODO: Implement
 	return nil
 }

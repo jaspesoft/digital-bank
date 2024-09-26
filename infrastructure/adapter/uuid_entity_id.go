@@ -7,6 +7,10 @@ type (
 	}
 )
 
+func NewUUIDEntityID() *UUIDEntityID {
+	return &UUIDEntityID{}
+}
+
 func (e UUIDEntityID) GetID() string {
 	return uuid.New().String()
 }

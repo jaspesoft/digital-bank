@@ -1,4 +1,4 @@
-package reqaccount
+package accountreq
 
 import (
 	accountdomain "digital-bank/internal/account/domain"
