@@ -26,10 +26,10 @@ func (rc *AppClientMongoRepository) Upsert(appClient *systemdomain.AppClient) er
 	})
 }
 
-func (rc *AppClientMongoRepository) GetClientByClientID(companyID string) (*systemdomain.AppClient, error) {
+func (rc *AppClientMongoRepository) GetClientByCompanyID(companyID string) (*systemdomain.AppClient, error) {
 
 	filter := bson.D{
-		{"clientId", companyID},
+		{"companyId", companyID},
 	}
 
 	return rc.searchWithFilter(filter)

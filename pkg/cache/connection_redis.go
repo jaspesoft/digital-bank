@@ -21,7 +21,7 @@ func RedisCnn() (*redis.Client, error) {
 			db = 1
 		}
 
-		uri := fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"))
+		uri := fmt.Sprintf("%s", os.Getenv("REDIS_HOST"))
 		// Create a Redis client
 		client := redis.NewClient(&redis.Options{
 			Addr:     uri,
@@ -36,7 +36,7 @@ func RedisCnn() (*redis.Client, error) {
 		_, err := client.Ping(ctx).Result()
 		if err != nil {
 			clientInstance = nil
-			fmt.Println("failed to create a Redis client")
+			fmt.Println("failed to create a Redis client", err)
 		}
 
 		clientInstance = client

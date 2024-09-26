@@ -15,7 +15,7 @@ func NewAppClientRedisRepository() *AppClientRedisRepository {
 	return &AppClientRedisRepository{}
 }
 
-func (r *AppClientRedisRepository) GetClientByClientID(companyID string) (*systemdomain.AppClient, error) {
+func (r *AppClientRedisRepository) GetClientByCompanyID(companyID string) (*systemdomain.AppClient, error) {
 	data, err := cache.RecoverData(companyID)
 
 	if err != nil {

@@ -27,7 +27,7 @@ func AuthMiddleware(c *gin.Context) {
 	strToken, err := pkg.DecryptData(bearerToken, os.Getenv("PRIVATE_KEY"))
 
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 		c.Abort()
 		return
 	}
@@ -36,7 +36,7 @@ func AuthMiddleware(c *gin.Context) {
 	err = json.Unmarshal([]byte(strToken), &m)
 	if err != nil {
 		fmt.Println("Error:", err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 		c.Abort()
 		return
 	}
@@ -44,13 +44,14 @@ func AuthMiddleware(c *gin.Context) {
 	resAppClient := searchClient(m.CompanyID)
 
 	if !resAppClient.IsOk() {
-		c.JSON(resAppClient.GetError().GetHTTPCode(), gin.H{"error": resAppClient.GetError().Error()})
+		c.JSON(resAppClient.GetError().GetHTTPCode(), gin.H{"message": resAppClient.GetError().Error()})
 		c.Abort()
 		return
 	}
 
-	if resAppClient.GetValue().GetTokenAPI() != strToken {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	fmt.Println(resAppClient.GetValue().GetTokenAPI())
+	if resAppClient.GetValue().GetTokenAPI() != m.Authorization {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 		c.Abort()
 		return
 	}

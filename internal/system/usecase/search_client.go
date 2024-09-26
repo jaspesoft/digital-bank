@@ -1,6 +1,8 @@
 package systemusecase
 
-import systemdomain "digital-bank/internal/system/domain"
+import (
+	systemdomain "digital-bank/internal/system/domain"
+)
 
 type (
 	SearchAppClient struct {
@@ -16,8 +18,7 @@ func NewSearchAppClient(repository systemdomain.AppClientRepository) *SearchAppC
 }
 
 func (s *SearchAppClient) Run(companyID string) systemdomain.Result[*systemdomain.AppClient] {
-	c, err := s.rep.GetClientByClientID(companyID)
-
+	c, err := s.rep.GetClientByCompanyID(companyID)
 	if err != nil {
 		return systemdomain.NewResult[*systemdomain.AppClient](nil, systemdomain.NewError(
 			404, err.Error(),
