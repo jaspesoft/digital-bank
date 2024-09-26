@@ -9,7 +9,7 @@ type (
 		FedWire struct {
 			IN  float64 `json:"in"`
 			OUT float64 `json:"out"`
-		} `json:"fedWire"`
+		} `json:"fedWire" bson:"fedWire"`
 	}
 
 	SwiftUSA struct {
@@ -23,8 +23,8 @@ type (
 	}
 
 	TransactionFee struct {
-		DomesticUSA DomesticUSA `json:"domestic_usa" bson:"domesticUsa"`
-		SwiftUSA    SwiftUSA    `json:"swift_usa" bson:"swiftUsa"`
+		DomesticUSA DomesticUSA `json:"domesticUsa" bson:"domesticUsa"`
+		SwiftUSA    SwiftUSA    `json:"swiftUsa" bson:"swiftUsa"`
 		Swap        Swap        `json:"swap" bson:"swap"`
 	}
 )
@@ -77,17 +77,16 @@ func (f *TransactionFee) GetSwapFeeForSell() float64 {
 
 func (f *TransactionFee) ToMap() map[string]interface{} {
 	return map[string]interface{}{
-		"domestic_usa": f.DomesticUSA,
-		"swift_usa":    f.SwiftUSA,
-		"swap":         f.Swap,
+		"domesticUsa": f.DomesticUSA,
+		"swiftUsa":    f.SwiftUSA,
+		"swap":        f.Swap,
 	}
 }
 
 func TransactionFeeFromPrimitive(t map[string]interface{}) *TransactionFee {
-
-	achUSAMap := t["domestic_usa"].(map[string]interface{})["ach"].(map[string]interface{})
-	domesticUSAMap := t["domestic_usa"].(map[string]interface{})["fedWire"].(map[string]interface{})
-	swiftUsaMap := t["swift_usa"].(map[string]interface{})
+	achUSAMap := t["domesticUsa"].(map[string]interface{})["ach"].(map[string]interface{})
+	domesticUSAMap := t["domesticUsa"].(map[string]interface{})["fedWire"].(map[string]interface{})
+	swiftUsaMap := t["swiftUsa"].(map[string]interface{})
 	swapMap := t["swap"].(map[string]interface{})
 
 	return &TransactionFee{

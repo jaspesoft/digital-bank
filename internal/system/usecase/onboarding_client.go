@@ -14,7 +14,9 @@ type (
 	}
 )
 
-func NewOnboardingAppClient(clintID systemdomain.EntityID, repoAppClient systemdomain.AppClientRepository, repoSystemParameter systemdomain.SystemParametersRepository) *OnboardingAppClient {
+func NewOnboardingAppClient(
+	clintID systemdomain.EntityID, repoAppClient systemdomain.AppClientRepository, repoSystemParameter systemdomain.SystemParametersRepository,
+) *OnboardingAppClient {
 	return &OnboardingAppClient{
 		repoAppClient:       repoAppClient,
 		repoSystemParameter: repoSystemParameter,
@@ -23,12 +25,28 @@ func NewOnboardingAppClient(clintID systemdomain.EntityID, repoAppClient systemd
 }
 
 func (o *OnboardingAppClient) Run(appClientRequest systemreq.AppClientRequest) systemdomain.Result[*systemdomain.AppClient] {
+	userApp, err := o.repoAppClient.GetClientByEmail(appClientRequest.Email)
+
+	if userApp != nil && err == nil {
+		return systemdomain.NewResult[*systemdomain.AppClient](nil, systemdomain.NewError(400, "Client already exists"))
+	}
+
+	if err != nil && err.Error() != "Client not found" {
+		return systemdomain.NewResult[*systemdomain.AppClient](nil, systemdomain.NewError(500, err.Error()))
+	}
+
 	systemParameters, err := o.repoSystemParameter.GetSystemParameters()
 
 	if err != nil {
 		return systemdomain.NewResult[*systemdomain.AppClient](nil, systemdomain.NewError(500, err.Error()))
 	}
 
+	return o.registerClient(appClientRequest, systemParameters)
+}
+
+func (o *OnboardingAppClient) registerClient(
+	appClientRequest systemreq.AppClientRequest, systemParameters *systemdomain.SystemParameters,
+) systemdomain.Result[*systemdomain.AppClient] {
 	domesticUSA := systemdomain.DomesticUSA{
 		ACH: struct {
 			IN  float64 `json:"in"`
@@ -59,11 +77,11 @@ func (o *OnboardingAppClient) Run(appClientRequest systemreq.AppClientRequest) s
 	commissionsChargedClient := systemdomain.NewTransactionFee(domesticUSA, swift, swap)
 
 	appClient := systemdomain.NewAppClient(
-		o.clintID, appClientRequest.Name, appClientRequest.PhoneNumber, appClientRequest.Email, commissionsChargedClient,
+		o.clintID, appClientRequest.Name, appClientRequest.Email, appClientRequest.PhoneNumber, commissionsChargedClient,
 		systemParameters.GetCommissions(),
 	)
 
-	err = o.repoAppClient.Upsert(appClient)
+	err := o.repoAppClient.Upsert(appClient)
 
 	if err != nil {
 		fmt.Println(`OnboardingAppClient Error:`, err)

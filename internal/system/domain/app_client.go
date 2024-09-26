@@ -3,6 +3,7 @@ package systemdomain
 import (
 	"digital-bank/internal"
 	"encoding/base64"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
 
@@ -34,6 +35,7 @@ type (
 
 	AppClientRepository interface {
 		GetClientByClientID(companyID string) (*AppClient, error)
+		GetClientByEmail(email string) (*AppClient, error)
 		Upsert(client *AppClient) error
 	}
 )
@@ -112,6 +114,12 @@ func (c *AppClient) Disable() {
 }
 
 func AppClientFromPrimitive(client map[string]interface{}) *AppClient {
+
+	var myRawDate time.Time
+	if rawDate, ok := client["createdAt"].(primitive.DateTime); ok {
+		myRawDate = rawDate.Time() // Convertir a time.Time
+	}
+
 	return &AppClient{
 		ClientID:              client["clientId"].(string),
 		CompanyName:           client["companyName"].(string),
@@ -120,7 +128,7 @@ func AppClientFromPrimitive(client map[string]interface{}) *AppClient {
 		Status:                AppClientStatus(client["status"].(string)),
 		Commissions:           TransactionFeeFromPrimitive(client["commissions"].(map[string]interface{})),
 		TechnologyProviderFee: TransactionFeeFromPrimitive(client["technologyProviderFee"].(map[string]interface{})),
-		CreatedAt:             client["createdAt"].(time.Time),
+		CreatedAt:             myRawDate,
 		Email:                 client["email"].(string),
 		PhoneNumber:           client["phoneNumber"].(string),
 	}

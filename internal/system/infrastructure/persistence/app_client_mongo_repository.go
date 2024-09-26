@@ -32,9 +32,22 @@ func (rc *AppClientMongoRepository) GetClientByClientID(companyID string) (*syst
 		{"clientId", companyID},
 	}
 
-	var account map[string]interface{}
+	return rc.searchWithFilter(filter)
+}
 
-	err := rc.rep.GetCollection().FindOne(context.TODO(), filter).Decode(&account)
+func (rc *AppClientMongoRepository) GetClientByEmail(email string) (*systemdomain.AppClient, error) {
+
+	filter := bson.D{
+		{"email", email},
+	}
+
+	return rc.searchWithFilter(filter)
+}
+
+func (rc *AppClientMongoRepository) searchWithFilter(filter bson.D) (*systemdomain.AppClient, error) {
+	var appClient map[string]interface{}
+
+	err := rc.rep.GetCollection().FindOne(context.TODO(), filter).Decode(&appClient)
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			return nil, errors.New("Client not found")
@@ -42,5 +55,5 @@ func (rc *AppClientMongoRepository) GetClientByClientID(companyID string) (*syst
 		return nil, err
 	}
 
-	return systemdomain.AppClientFromPrimitive(account), nil
+	return systemdomain.AppClientFromPrimitive(appClient), nil
 }

@@ -4,8 +4,8 @@ import systemdomain "digital-bank/internal/system/domain"
 
 type (
 	Commissions struct {
-		DomesticUSA systemdomain.DomesticUSA `json:"domestic_usa" binding:"required"`
-		SwiftUSA    systemdomain.SwiftUSA    `json:"swift_usa" binding:"required"`
+		DomesticUSA systemdomain.DomesticUSA `json:"domesticUsa" binding:"required"`
+		SwiftUSA    systemdomain.SwiftUSA    `json:"swiftUsa" binding:"required"`
 		Swap        systemdomain.Swap        `json:"swap" binding:"required"`
 	}
 

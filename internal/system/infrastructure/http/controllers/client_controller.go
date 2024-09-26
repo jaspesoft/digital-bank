@@ -33,7 +33,7 @@ func OnboardingAppClient(ctx *gin.Context) {
 	).Run(appClientRequest)
 
 	if !result.IsOk() {
-		ctx.JSON(result.GetError().GetHTTPCode(), gin.H{"error": result.GetError().Error()})
+		ctx.JSON(result.GetError().GetHTTPCode(), gin.H{"message": result.GetError().Error()})
 		return
 	}
 

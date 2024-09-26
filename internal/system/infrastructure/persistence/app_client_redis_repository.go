@@ -34,3 +34,9 @@ func (r *AppClientRedisRepository) Upsert(client *systemdomain.AppClient) error 
 	panic("not implemented for redis") // TODO: Implement
 	return nil
 }
+
+func (r *AppClientRedisRepository) GetClientByEmail(email string) (*systemdomain.AppClient, error) {
+	panic("not implemented for redis") // TODO: Implement
+	return nil, nil
+
+}
