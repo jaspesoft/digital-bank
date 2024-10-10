@@ -1,4 +1,4 @@
-package persistence
+package accountpersistence
 
 import (
 	"context"
@@ -9,18 +9,18 @@ import (
 )
 
 type (
-	AccountRepository struct {
+	AccountMongoRepository struct {
 		repo *mongo.Repository
 	}
 )
 
-func NewAccountRepository() *AccountRepository {
-	return &AccountRepository{
+func NewAccountMongoRepository() *AccountMongoRepository {
+	return &AccountMongoRepository{
 		repo: mongo.NewMongoRepository("account"),
 	}
 }
 
-func (r *AccountRepository) Paginate(cri *criteria.Criteria) (criteria.Paginate, error) {
+func (r *AccountMongoRepository) Paginate(cri *criteria.Criteria) (criteria.Paginate, error) {
 	mongoPaginate, err := r.repo.SearchByCriteria(cri)
 
 	if err != nil {
@@ -41,7 +41,7 @@ func (r *AccountRepository) Paginate(cri *criteria.Criteria) (criteria.Paginate,
 	}, nil
 }
 
-func (r *AccountRepository) Save(account accountdomain.Account) error {
+func (r *AccountMongoRepository) Save(account accountdomain.Account) error {
 	return r.repo.Persist(account, &bson.D{
 		{"accountId", account.GetAccountID()},
 	})

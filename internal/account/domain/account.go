@@ -21,19 +21,24 @@ type (
 	AccountStatus string
 
 	Account struct {
-		accountID      string                           `bson:"accountId" json:"accountId"`
-		name           string                           `bson:"name" json:"name"`
-		typeAccount    AccountType                      `bson:"type" json:"clientType"`
-		accountHolder  AccountHolder                    `bson:"accountHolder" json:"accountHolder"`
-		status         AccountStatus                    `bson:"status" json:"status"`
-		transactionFee *systemdomain.TransactionFee     `bson:"transactionFee" json:"transactionFee"`
-		createdAt      time.Time                        `bson:"createdAt" json:"createdAt"`
-		approvedAt     time.Time                        `bson:"createdAt" json:"approvedAt"`
-		ownerRecord    systemdomain.AppClientIdentifier `bson:"clientOwnerRecord" json:"ownerRecord"`
+		AccountID      string                           `bson:"accountId" json:"accountId"`
+		ApplicationID  string                           `bson:"applicationId" json:"applicationId"`
+		Name           string                           `bson:"name" json:"name"`
+		TypeAccount    AccountType                      `bson:"type" json:"clientType"`
+		AccountHolder  AccountHolder                    `bson:"accountHolder" json:"accountHolder"`
+		Status         AccountStatus                    `bson:"status" json:"status"`
+		TransactionFee *systemdomain.TransactionFee     `bson:"transactionFee" json:"transactionFee"`
+		CreatedAt      time.Time                        `bson:"createdAt" json:"createdAt"`
+		ApprovedAt     time.Time                        `bson:"createdAt" json:"approvedAt"`
+		OwnerRecord    systemdomain.AppClientIdentifier `bson:"clientOwnerRecord" json:"ownerRecord"`
 	}
 
 	AccountRepository interface {
 		Paginate(criteria *criteria.Criteria) (criteria.Paginate, error)
+	}
+
+	AccountProviderService interface {
+		CreateApplication(a *Account) error
 	}
 )
 
@@ -41,70 +46,82 @@ func NewAccount(accountID systemdomain.EntityID, accountHolder AccountHolder, ow
 	accountHolder.SetAccountHolder(accountHolder)
 
 	return &Account{
-		accountID:      accountID.GetID(),
-		name:           accountHolder.GetName(),
-		typeAccount:    accountHolder.GetType(),
-		accountHolder:  accountHolder,
-		status:         REGISTERED,
-		transactionFee: ownerRecord.GetCommissionsDefault(),
-		ownerRecord:    ownerRecord.GetIdentifier(),
-		createdAt:      time.Now(),
+		AccountID:      accountID.GetID(),
+		Name:           accountHolder.GetName(),
+		TypeAccount:    accountHolder.GetType(),
+		AccountHolder:  accountHolder,
+		Status:         REGISTERED,
+		TransactionFee: ownerRecord.GetCommissionsDefault(),
+		OwnerRecord:    ownerRecord.GetIdentifier(),
+		CreatedAt:      time.Now(),
 	}
 }
 
 func (a *Account) GetName() string {
-	return a.name
+	return a.Name
 }
 
 func (a *Account) GetAccountID() string {
-	return a.accountID
+	return a.AccountID
 }
 
 func (a *Account) GetType() AccountType {
-	return a.accountHolder.GetType()
+	return a.AccountHolder.GetType()
 }
 
 func (a *Account) GetAccountHolder() AccountHolder {
-	return a.accountHolder
+	return a.AccountHolder
 }
 
 func (a *Account) GetStatus() AccountStatus {
-	return a.status
+	return a.Status
 }
 
 func (a *Account) GetTransactionFee() *systemdomain.TransactionFee {
-	return a.transactionFee
+	return a.TransactionFee
 }
 
 func (a *Account) ApproveAccount() {
-	a.status = APPROVED
-	a.approvedAt = time.Now()
+	a.Status = APPROVED
+	a.ApprovedAt = time.Now()
 }
 
 func (a *Account) RejectAccount() {
-	a.status = REJECTED
+	a.Status = REJECTED
 }
 
 func (a *Account) RequestChanges() {
-	a.status = CHANGES_REQUESTED
+	a.Status = CHANGES_REQUESTED
 }
 
 func (a *Account) FreezeAccount() {
-	a.status = FROZEN
+	a.Status = FROZEN
 }
 
 func (a *Account) SuspectFraud() {
-	a.status = SUSPECTED_FRAUD
+	a.Status = SUSPECTED_FRAUD
+}
+
+func (a *Account) Processing() {
+	a.Status = PROCESSING
+}
+
+func (a *Account) Submit() {
+	a.Status = SUBMITTED
+}
+
+func (a *Account) SetApplicationID(applicationID string) {
+	a.AccountID = applicationID
 }
 
 func (a *Account) ToMap() map[string]interface{} {
 	return map[string]interface{}{
-		"name":           a.name,
-		"type":           a.typeAccount,
-		"accountHolder":  a.accountHolder.ToMap(),
-		"status":         a.status,
-		"transactionFee": a.transactionFee.ToMap(),
-		"createdAt":      a.createdAt,
-		"approvedAt":     a.approvedAt,
+		"name":           a.Name,
+		"type":           a.TypeAccount,
+		"accountHolder":  a.AccountHolder.ToMap(),
+		"status":         a.Status,
+		"transactionFee": a.TransactionFee.ToMap(),
+		"createdAt":      a.CreatedAt,
+		"approvedAt":     a.ApprovedAt,
 	}
 }

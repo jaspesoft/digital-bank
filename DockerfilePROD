@@ -1,22 +1,39 @@
+# Etapa 1: Compilación de la aplicación Go
 FROM golang:1.22-alpine AS builder
 
 WORKDIR /app
 
+# Copiar los archivos del módulo de Go y descargarlos
 COPY go.sum go.mod ./
-
 RUN go mod download
 
+# Copiar el resto del código fuente y compilar el binario
 COPY . .
-
 RUN go build -o digital_bank cmd/main.go
 
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
+# Etapa 2: Imagen final basada en Debian
+FROM golang:1.22-bullseye
+
+# Instalación de dependencias necesarias
+RUN apt-get update && apt-get install -y \
+    nodejs \
+    npm \
+    wkhtmltopdf \
+    fonts-liberation \
+    fontconfig \
+    xvfb \
+    libxrender1 \
+    libxext6 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY --from=builder /digital_bank/digital_bank .
+# Copiar el binario de la app desde la etapa de compilación
+COPY --from=builder /app/digital_bank .
 
+# Exponer el puerto 8080
 EXPOSE 8080
 
+# Comando para ejecutar la aplicación
 CMD ["./digital_bank"]

@@ -8,9 +8,11 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -129,21 +131,39 @@ func (l *Layer2) genSignature() (string, int64) {
 	return signMessage(privateKeyPem, message), timestamp
 }
 
-func (l *Layer2) Post(URL string, payload interface{}) (*resty.Response, error) {
-	l.payload = payload
+func (l *Layer2) Post() ([]byte, error) {
 	l.method = "POST"
-	l.endPointURL = URL
 
-	return l.httpClient.R().SetHeaders(l.getHeader()).SetBody(payload).Post(os.Getenv("LAYER2_URL") + URL)
+	r, err := l.httpClient.R().
+		SetHeaders(l.getHeader()).
+		SetBody(l.payload).
+		Post(os.Getenv("LAYER2_URL") + l.endPointURL)
 
+	if err != nil {
+		return nil, err
+	}
+
+	if r.IsError() && r.StatusCode() != http.StatusUnauthorized {
+		return nil, errors.New(r.String())
+	}
+
+	if r.StatusCode() == http.StatusUnauthorized {
+		_, err := l.Auth()
+		if err != nil {
+			return nil, err
+		}
+
+		return l.Post()
+	}
+
+	return r.Body(), nil
 }
 
-func (l *Layer2) Get(URL string) (*resty.Response, error) {
+func (l *Layer2) Get() (*resty.Response, error) {
 	l.payload = nil
 	l.method = "GET"
-	l.endPointURL = URL
 
-	return l.httpClient.R().SetHeaders(l.getHeader()).Get(os.Getenv("LAYER2_URL") + URL)
+	return l.httpClient.R().SetHeaders(l.getHeader()).Get(os.Getenv("LAYER2_URL") + l.endPointURL)
 }
 
 func hexToPem(hexString string, keyType string) string {

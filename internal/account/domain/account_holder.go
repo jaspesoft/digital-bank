@@ -11,20 +11,44 @@ const (
 	US_CITIZEN         ResidencyStatus = "US_CITIZEN"
 	RESIDENT_ALIEN     ResidencyStatus = "RESIDENT_ALIEN"
 	NON_RESIDENT_ALIEN ResidencyStatus = "NON_RESIDENT_ALIEN"
+
+	EMPLOYEE      EmploymentStatus = "EMPLOYEE"
+	SELF_EMPLOYED EmploymentStatus = "SELF_EMPLOYED"
+	RETIRED       EmploymentStatus = "RETIRED"
+	UNEMPLOYED    EmploymentStatus = "UNEMPLOYED"
+	OTHER         EmploymentStatus = "OTHER"
 )
 
 type (
-	AccountType     string
-	ResidencyStatus string
+	AccountType      string
+	ResidencyStatus  string
+	EmploymentStatus string
 
 	AccountHolder interface {
 		GetType() AccountType
 		GetName() string
 		GetIDNumber() string
-		SetAccountHolder(holder interface{})
+		GetAddress() Address
+		GetPhoneNumber() string
+		GetInvestmentProfile() *InvestmentProfile
+		SetAccountHolder(holder interface{}) *systemdomain.Error
 		ToMap() map[string]interface{}
 		SetKYC(kyc KYC)
-		setDocument(document Document, dni string)
+		SetDocument(document Document, dni string)
+	}
+
+	InvestmentProfile struct {
+		PrimarySourceOfFunds              string `bson:"primarySourceOfFunds" json:"primarySourceOfFunds"`
+		UsdValueOfFiat                    string `bson:"usdValueOfFiat" json:"usdValueOfFiat"`
+		UsdValueOfCrypto                  string `bson:"usdValueOfCrypto" json:"usdValueOfCrypto"`
+		MonthlyDeposits                   string `bson:"monthlyDeposits" json:"monthlyDeposits"`
+		MonthlyCryptoDeposits             string `bson:"monthlyCryptoDeposits" json:"monthlyCryptoDeposits"`
+		MonthlyInvestmentDeposit          string `bson:"monthlyInvestmentDeposit" json:"monthlyInvestmentDeposit"`
+		MonthlyCryptoInvestmentDeposit    string `bson:"monthlyCryptoInvestmentDeposit" json:"monthlyCryptoInvestmentDeposit"`
+		MonthlyWithdrawals                string `bson:"monthlyWithdrawals" json:"monthlyWithdrawals"`
+		MonthlyCryptoWithdrawals          string `bson:"monthlyCryptoWithdrawals" json:"monthlyCryptoWithdrawals"`
+		MonthlyInvestmentWithdrawal       string `bson:"monthlyInvestmentWithdrawal" json:"monthlyInvestmentWithdrawal"`
+		MonthlyCryptoInvestmentWithdrawal string `bson:"monthlyCryptoInvestmentWithdrawal"`
 	}
 
 	Address struct {
@@ -44,20 +68,34 @@ type (
 		KYCRequiredActions map[string]string `bson:"KYCRequiredActions" json:"kycRequiredActions"`
 	}
 
+	KYCProfilePersonal struct {
+		FundsSendReceiveJurisdictions string            `bson:"fundsSendReceiveJurisdictions" json:"fundsSendReceiveJurisdictions"`
+		EngageInActivities            map[string]string `bson:"engageInActivities" json:"engageInActivities"`
+	}
+
 	Individual struct {
-		FirstName       string          `bson:"firstName" json:"firstName"`
-		DNI             string          `bson:"dni" json:"dni"`
-		MiddleName      *string         `bson:"middleName" json:"middleName"`
-		LastName        string          `bson:"lastName" json:"lastName"`
-		TaxID           *string         `bson:"taxID" json:"taxId,omitempty"`
-		Passport        *string         `bson:"passport" json:"passport,omitempty"`
-		DateBirth       *CustomTime     `bson:"dateBirth" json:"dateBirth,omitempty" time_utc:"1"`
-		KYC             *KYC            `bson:"kyc" json:"kyc,omitempty"`
-		ResidencyStatus ResidencyStatus `bson:"residencyStatus" json:"residencyStatus"`
-		Documents       []Document      `bson:"documents" json:"documents"`
-		Address         *Address        `bson:"address" json:"address,omitempty"`
+		FirstName            string              `bson:"firstName" json:"firstName"`
+		DNI                  string              `bson:"dni" json:"dni"`
+		MiddleName           *string             `bson:"middleName" json:"middleName"`
+		LastName             string              `bson:"lastName" json:"lastName"`
+		PhoneNumber          string              `bson:"phoneNumber" json:"phoneNumber"`
+		TaxID                string              `bson:"taxID" json:"taxId,omitempty"`
+		Email                string              `bson:"email" json:"email"`
+		Passport             *string             `bson:"passport" json:"passport,omitempty"`
+		DateBirth            *CustomTime         `bson:"dateBirth" json:"dateBirth,omitempty" time_utc:"1"`
+		KYC                  *KYC                `bson:"kyc" json:"kyc,omitempty"`
+		KYCProfile           *KYCProfilePersonal `bson:"kycProfile" json:"kycProfile"`
+		Occupation           string              `bson:"occupation" json:"occupation"`
+		EmploymentStatus     EmploymentStatus    `bson:"employmentStatus" json:"employmentStatus"`
+		ResidencyStatus      ResidencyStatus     `bson:"residencyStatus" json:"residencyStatus"`
+		Documents            []Document          `bson:"documents" json:"documents"`
+		Address              *Address            `bson:"address" json:"address,omitempty"`
+		InvestmentProfile    *InvestmentProfile  `bson:"investmentProfile" json:"investmentProfile,omitempty"`
+		PartnerApplicationId string              `bson:"partnerApplicationId" json:"partnerApplicationId"`
 	}
 )
+
+// Implementing AccountHolder methods for Individual
 
 func (i *Individual) GetType() AccountType {
 	return INDIVIDUAL_CLIENT
@@ -67,12 +105,23 @@ func (i *Individual) GetName() string {
 	if i.MiddleName != nil {
 		return i.FirstName + " " + *i.MiddleName + " " + i.LastName
 	}
-
 	return i.FirstName + " " + i.LastName
 }
 
 func (i *Individual) GetIDNumber() string {
 	return i.DNI
+}
+
+func (i *Individual) GetAddress() Address {
+	return *i.Address
+}
+
+func (i *Individual) GetPhoneNumber() string {
+	return i.PhoneNumber
+}
+
+func (i *Individual) GetInvestmentProfile() *InvestmentProfile {
+	return i.InvestmentProfile
 }
 
 func (i *Individual) SetAccountHolder(holder interface{}) *systemdomain.Error {
@@ -88,28 +137,31 @@ func (i *Individual) SetAccountHolder(holder interface{}) *systemdomain.Error {
 		i.ResidencyStatus = individual.ResidencyStatus
 		i.Documents = individual.Documents
 		i.Address = individual.Address
+		i.PhoneNumber = individual.PhoneNumber
+		i.InvestmentProfile = individual.InvestmentProfile
+		i.KYCProfile = individual.KYCProfile
+		i.Email = individual.Email
+		i.Occupation = individual.Occupation
+		i.EmploymentStatus = individual.EmploymentStatus
 
 		return nil
 	}
-
 	return systemdomain.NewError(400, "The type of Account Holder is not Individual")
-
 }
 
 func (i *Individual) SetKYC(kyc KYC) {
 	i.KYC = &kyc
 }
 
-func (i *Individual) setDocument(document Document, dni string) {
+func (i *Individual) SetDocument(document Document, dni string) {
 	documentExist := false
-	for _, doc := range i.Documents {
+	for idx, doc := range i.Documents {
 		if doc.GetDocumentType() == document.GetDocumentType() {
 			documentExist = true
-			doc.UpdateDocument(document)
+			i.Documents[idx].UpdateDocument(document)
 			break
 		}
 	}
-
 	if !documentExist {
 		i.Documents = append(i.Documents, document)
 	}
