@@ -45,20 +45,11 @@ type (
 		EditPartner(dni string, updatedPartner Individual)
 		setDocument(document Document, dni string)
 		UpdatePartnerKYC(dni string, kyc *KYC)
-	}
-
-	InvestmentProfile struct {
-		PrimarySourceOfFunds              string `bson:"primarySourceOfFunds" json:"primarySourceOfFunds"`
-		UsdValueOfFiat                    string `bson:"usdValueOfFiat" json:"usdValueOfFiat"`
-		UsdValueOfCrypto                  string `bson:"usdValueOfCrypto" json:"usdValueOfCrypto"`
-		MonthlyDeposits                   string `bson:"monthlyDeposits" json:"monthlyDeposits"`
-		MonthlyCryptoDeposits             string `bson:"monthlyCryptoDeposits" json:"monthlyCryptoDeposits"`
-		MonthlyInvestmentDeposit          string `bson:"monthlyInvestmentDeposit" json:"monthlyInvestmentDeposit"`
-		MonthlyCryptoInvestmentDeposit    string `bson:"monthlyCryptoInvestmentDeposit" json:"monthlyCryptoInvestmentDeposit"`
-		MonthlyWithdrawals                string `bson:"monthlyWithdrawals" json:"monthlyWithdrawals"`
-		MonthlyCryptoWithdrawals          string `bson:"monthlyCryptoWithdrawals" json:"monthlyCryptoWithdrawals"`
-		MonthlyInvestmentWithdrawal       string `bson:"monthlyInvestmentWithdrawal" json:"monthlyInvestmentWithdrawal"`
-		MonthlyCryptoInvestmentWithdrawal string `bson:"monthlyCryptoInvestmentWithdrawal" json:"monthlyCryptoInvestmentWithdrawal"`
+		GetAddress() Address
+		GetRegisteredAddress() Address
+		GetCompanyData() Company
+		GetPartners() []Individual
+		GetKYCProfile() *KYCProfile
 	}
 
 	KYCProfile struct {
@@ -82,6 +73,7 @@ type (
 		PhysicalAddress   Address            `bson:"physicalAddress" json:"physicalAddress,omitempty" `
 		PhoneCountry      string             `bson:"phoneCountry" json:"phoneCountry"`
 		PhoneNumber       string             `bson:"phoneNumber" json:"phoneNumber"`
+		Email             string             `bson:"email" json:"email"`
 		Documents         []Document         `bson:"documents" json:"documents"`
 		KYC               *KYC               `bson:"kyc" json:"kyc,omitempty"`
 		InvestmentProfile *InvestmentProfile `bson:"investmentProfile" json:"investmentProfile"`
@@ -115,6 +107,7 @@ func (c *Company) SetAccountHolder(holder interface{}) *systemdomain.Error {
 		c.KYC = company.KYC
 		c.InvestmentProfile = company.InvestmentProfile
 		c.Partners = company.Partners
+		c.Email = company.Email
 
 		return nil
 	}
@@ -209,6 +202,26 @@ func (c *Company) setDocument(document Document, dni string) *systemdomain.Error
 
 	return nil
 
+}
+
+func (c *Company) GetPhoneNumber() string {
+	return c.PhoneNumber
+}
+
+func (c *Company) GetCompanyData() Company {
+	return *c
+}
+
+func (c *Company) GetInvestmentProfile() *InvestmentProfile {
+	return c.InvestmentProfile
+}
+
+func (c *Company) GetKYCProfile() *KYCProfile {
+	return c.KYCProfile
+}
+
+func (c *Company) GetPartners() []Individual {
+	return c.Partners
 }
 
 func (c *Company) ToMap() map[string]interface{} {

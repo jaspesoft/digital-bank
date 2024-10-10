@@ -2,8 +2,8 @@ package systemdomain
 
 type (
 	Result[T any] struct {
-		Value T
-		Err   *Error
+		value T
+		err   *Error
 	}
 
 	Notification struct {
@@ -19,33 +19,29 @@ type (
 
 func NewResult[T any](value T, err *Error) Result[T] {
 	return Result[T]{
-		Value: value,
-		Err:   err,
+		value: value,
+		err:   err,
 	}
 }
 
 func (r *Result[T]) IsOk() bool {
-	return r.Err == nil
+	return r.err == nil
 }
 
 func (r *Result[T]) GetValue() T {
-	return r.Value
-}
-
-func (r *Result[T]) GetError() *Error {
-	if r.Err == nil {
-		return nil
-	}
-
-	return r.Err
+	return r.value
 }
 
 func (r *Result[T]) SetNotifyError(n NotifyError) {
 	go func() {
 		n.SetMessage(Notification{
 			Channel: "error",
-			Message: r.Err.Error(),
+			Message: r.err.Error(),
 		})
 		_ = n.Send()
 	}()
+}
+
+func (r *Result[T]) GetError() *Error {
+	return r.err
 }
