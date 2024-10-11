@@ -1,5 +1,7 @@
 package accountdomain
 
+import "mime/multipart"
+
 const (
 	SELFIE                           DocumentType = "selfie"
 	PASSPORT                         DocumentType = "passport"
@@ -27,6 +29,11 @@ type (
 		patch        string
 		documentType DocumentType
 		documentSide DocumentSide
+	}
+
+	Stogare interface {
+		UploadFile(file multipart.File, header *multipart.FileHeader) (string, error)
+		DownloadFile(fileName string) (string, error)
 	}
 )
 
