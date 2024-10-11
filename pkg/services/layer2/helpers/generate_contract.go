@@ -3,6 +3,7 @@ package layer2helpers
 import (
 	"bytes"
 	accountdomain "digital-bank/internal/account/domain"
+	"digital-bank/pkg"
 	"fmt"
 	wkhtml "github.com/SebastiaanKlippert/go-wkhtmltopdf"
 	"log"
@@ -18,7 +19,7 @@ const (
 
 type ContractType string
 
-func mapperContractValue(a accountdomain.Account) []map[string]string {
+func mapperContractValue(a *accountdomain.Account) []map[string]string {
 	return []map[string]string{
 
 		{
@@ -60,7 +61,7 @@ func mapperContractValue(a accountdomain.Account) []map[string]string {
 	}
 }
 
-func generatePDF(htmlContent, fileName string) {
+func generatePDF(htmlContent string) ([]byte, error) {
 	pdfg, err := wkhtml.NewPDFGenerator()
 	if err != nil {
 		log.Fatal(err)
@@ -80,17 +81,15 @@ func generatePDF(htmlContent, fileName string) {
 	err = pdfg.Create()
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
 
-	// Guardar el PDF en un archivo
-	err = pdfg.WriteFile("./" + fileName + ".pdf")
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Convert the PDF to a byte slice
+	return pdfg.Bytes(), nil
 
 }
 
-func makeContract(a accountdomain.Account, contract ContractType, replacements []map[string]string) {
+func makeContract(contract ContractType, replacements []map[string]string) ([]byte, error) {
 
 	// Read the HTML file
 	htmlFilePath := "../templates_contract/account_agreement.html"
@@ -111,11 +110,45 @@ func makeContract(a accountdomain.Account, contract ContractType, replacements [
 		htmlString = strings.ReplaceAll(htmlString, placeholder, replacement["value"])
 	}
 
-	generatePDF(htmlString, string(contract))
+	return generatePDF(htmlString)
 }
 
-func GenerateContract(a accountdomain.Account) {
+func GenerateContract(a *accountdomain.Account) {
 	replacements := mapperContractValue(a)
-	makeContract(a, FORTRESS_AGREEMENT, replacements)
-	makeContract(a, ACCOUNT_AGREEMENT, replacements)
+	pdfByte, err := makeContract(FORTRESS_AGREEMENT, replacements)
+	if err != nil {
+		log.Println("Error generating the contract: "+string(FORTRESS_AGREEMENT), err)
+		return
+	}
+
+	s3 := pkg.NewAWSS3Storage(os.Getenv("AWS_S3_BUCKET_DOCUMENT"))
+	fileName, err := s3.UploadFile(pdfByte, string(FORTRESS_AGREEMENT))
+
+	if err != nil {
+		log.Println("Error upload document " + string(FORTRESS_AGREEMENT) + " " + string(accountdomain.FRONT))
+	} else {
+
+		a.GetAccountHolder().SetDocument(
+			accountdomain.Document{
+				AccountID:    a.GetAccountID(),
+				Patch:        fileName,
+				DocumentType: accountdomain.ACCOUNT_AGREEMENT,
+				DocumentSide: accountdomain.FRONT,
+			}, a.GetAccountHolder().GetIDNumber())
+	}
+
+	pdfByte, err = makeContract(ACCOUNT_AGREEMENT, replacements)
+	if err != nil {
+		log.Println("Error generating the contract: "+string(ACCOUNT_AGREEMENT)+" "+string(accountdomain.BACK), err)
+		return
+	} else {
+
+		a.GetAccountHolder().SetDocument(
+			accountdomain.Document{
+				AccountID:    a.GetAccountID(),
+				Patch:        fileName,
+				DocumentType: accountdomain.ACCOUNT_AGREEMENT,
+				DocumentSide: accountdomain.BACK,
+			}, a.GetAccountHolder().GetIDNumber())
+	}
 }

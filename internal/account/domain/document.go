@@ -25,10 +25,10 @@ type (
 	DocumentSide string
 
 	Document struct {
-		documentId   string
-		patch        string
-		documentType DocumentType
-		documentSide DocumentSide
+		AccountID    string       `json:"accountId"`
+		Patch        string       `json:"patch"`
+		DocumentType DocumentType `json:"documentType"`
+		DocumentSide DocumentSide `json:"documentSide"`
 	}
 
 	Stogare interface {
@@ -37,43 +37,49 @@ type (
 	}
 )
 
-func NewDocument(documentId string, patch string, documentType DocumentType) *Document {
+func NewDocument(accountID string, patch string, docType DocumentType, docSide DocumentSide) *Document {
 	return &Document{
-		documentId:   documentId,
-		patch:        patch,
-		documentType: documentType,
+		AccountID:    accountID,
+		Patch:        patch,
+		DocumentType: docType,
+		DocumentSide: docSide,
 	}
 }
 
-func (d *Document) GetDocumentId() string {
-	return d.documentId
-}
-
 func (d *Document) GetPatch() string {
-	return d.patch
+	return d.Patch
 }
 
 func (d *Document) GetDocumentType() DocumentType {
-	return d.documentType
+	return d.DocumentType
 }
 
 func (d *Document) GetDocumentSide() DocumentSide {
-	return d.documentSide
+	return d.DocumentSide
 }
 
 func (d *Document) UpdateDocument(doc Document) {
-	d.documentSide = doc.documentSide
-	d.patch = doc.patch
-	d.documentType = doc.documentType
-	d.documentSide = doc.documentSide
+	d.DocumentSide = doc.DocumentSide
+	d.Patch = doc.Patch
+	d.DocumentType = doc.DocumentType
+	d.DocumentSide = doc.DocumentSide
 
 }
 
 func (d *Document) ToMap() map[string]interface{} {
 	return map[string]interface{}{
-		"documentId":   d.documentId,
-		"patch":        d.patch,
-		"documentType": d.documentType,
-		"documentSide": d.documentSide,
+		"accountId":    d.AccountID,
+		"patch":        d.Patch,
+		"documentType": d.DocumentType,
+		"documentSide": d.DocumentSide,
+	}
+}
+
+func DocumentFromPrimitives(data map[string]interface{}) *Document {
+	return &Document{
+		AccountID:    data["accountId"].(string),
+		Patch:        data["patch"].(string),
+		DocumentType: data["documentType"].(DocumentType),
+		DocumentSide: data["documentSide"].(DocumentSide),
 	}
 }

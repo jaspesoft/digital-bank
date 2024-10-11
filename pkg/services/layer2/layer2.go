@@ -159,11 +159,59 @@ func (l *Layer2) Post() ([]byte, error) {
 	return r.Body(), nil
 }
 
-func (l *Layer2) Get() (*resty.Response, error) {
+func (l *Layer2) Get() ([]byte, error) {
 	l.payload = nil
 	l.method = "GET"
 
-	return l.httpClient.R().SetHeaders(l.getHeader()).Get(os.Getenv("LAYER2_URL") + l.endPointURL)
+	r, err := l.httpClient.R().SetHeaders(l.getHeader()).Get(os.Getenv("LAYER2_URL") + l.endPointURL)
+	if err != nil {
+		return nil, err
+	}
+
+	if r.IsError() && r.StatusCode() != http.StatusUnauthorized {
+		return nil, errors.New(r.String())
+	}
+
+	if r.StatusCode() == http.StatusUnauthorized {
+		_, err := l.Auth()
+		if err != nil {
+			return nil, err
+		}
+
+		return l.Get()
+	}
+
+	return r.Body(), nil
+}
+
+func (l *Layer2) SendDocument(file []byte, docID string) error {
+	token, _ := l.getToken()
+
+	header := map[string]string{
+		"Content-Type":  "application/octet-stream",
+		"Authorization": "Bearer " + token,
+	}
+
+	r, err := l.httpClient.R().SetHeaders(header).SetBody(file).Post("v1/documents/" + docID)
+
+	if err != nil {
+		return err
+	}
+
+	if r.IsError() && r.StatusCode() != http.StatusUnauthorized {
+		return errors.New(r.String())
+	}
+
+	if r.StatusCode() == http.StatusUnauthorized {
+		_, err := l.Auth()
+		if err != nil {
+			return err
+		}
+
+		return l.SendDocument(file, docID)
+	}
+
+	return nil
 }
 
 func hexToPem(hexString string, keyType string) string {

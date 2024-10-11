@@ -35,6 +35,7 @@ type (
 		ToMap() map[string]interface{}
 		SetKYC(kyc KYC)
 		SetDocument(document Document, dni string)
+		GetDocuments() []Document
 	}
 
 	InvestmentProfile struct {
@@ -165,6 +166,10 @@ func (i *Individual) SetDocument(document Document, dni string) {
 	if !documentExist {
 		i.Documents = append(i.Documents, document)
 	}
+}
+
+func (i *Individual) GetDocuments() []Document {
+	return i.Documents
 }
 
 func (i *Individual) ToMap() map[string]interface{} {

@@ -114,6 +114,10 @@ func (a *Account) SetApplicationID(applicationID string) {
 	a.AccountID = applicationID
 }
 
+func (a *Account) GetApplicationID() string {
+	return a.ApplicationID
+}
+
 func (a *Account) ToMap() map[string]interface{} {
 	return map[string]interface{}{
 		"name":           a.Name,

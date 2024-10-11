@@ -224,6 +224,10 @@ func (c *Company) GetPartners() []Individual {
 	return *c.Partners
 }
 
+func (c *Company) GetDocuments() []Document {
+	return c.Documents
+}
+
 func (c *Company) ToMap() map[string]interface{} {
 	return map[string]interface{}{
 		"name":              c.Name,

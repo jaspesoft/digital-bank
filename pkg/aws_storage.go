@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	bytes "bytes"
 	fmt "fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -10,8 +11,6 @@ import (
 	os "os"
 	"path/filepath"
 	time "time"
-
-	"mime/multipart"
 )
 
 type (
@@ -37,16 +36,15 @@ func NewAWSS3Storage(bucket string) *AWSS3Storage {
 	}
 }
 
-func (a *AWSS3Storage) UploadFile(file multipart.File, header *multipart.FileHeader) (string, error) {
+func (a *AWSS3Storage) UploadFile(file []byte, fileName string) (string, error) {
 
-	fileKey := generateFileName(header.Filename)
+	fileKey := generateFileName(fileName)
 
 	// Configura los parámetros de subida
 	uploadParams := &s3.PutObjectInput{
-		Bucket:      aws.String(a.bucket),
-		Key:         aws.String(fileKey),
-		Body:        file,
-		ContentType: aws.String(header.Header.Get("Content-Type")),
+		Bucket: aws.String(a.bucket),
+		Key:    aws.String(fileKey),
+		Body:   bytes.NewReader(file),
 	}
 
 	// Sube el archivo a S3
