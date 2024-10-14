@@ -1,4 +1,4 @@
-package httpaccount
+package accounthttp
 
 import (
 	"digital-bank/infrastructure/http/middleware"

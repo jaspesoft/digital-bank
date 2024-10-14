@@ -2,7 +2,7 @@ package server
 
 import (
 	"digital-bank/infrastructure/http/middleware"
-	httpaccount "digital-bank/internal/account/infrastructure/http"
+	accounthttp "digital-bank/internal/account/infrastructure/http"
 	systemhttp "digital-bank/internal/system/infrastructure/http"
 	"github.com/gin-gonic/gin"
 )
@@ -12,7 +12,7 @@ func NewRouter() *gin.Engine {
 
 	r.Use(middleware.CORSMiddleware)
 
-	httpaccount.AccountRoute(r)
+	accounthttp.AccountRoute(r)
 	systemhttp.SystemRoute(r)
 
 	return r

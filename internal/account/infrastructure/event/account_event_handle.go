@@ -1,4 +1,4 @@
-package event
+package accountevent
 
 import (
 	systemdomain "digital-bank/internal/system/domain"

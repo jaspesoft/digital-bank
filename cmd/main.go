@@ -3,7 +3,7 @@ package main
 import (
 	"digital-bank/infrastructure/adapter"
 	"digital-bank/infrastructure/config"
-	"digital-bank/infrastructure/event"
+	"digital-bank/infrastructure/events"
 	"digital-bank/infrastructure/http/server"
 	"log"
 )
@@ -18,7 +18,7 @@ func main() {
 
 	config.LoadEnvironmentVariables()
 
-	event.SubscribeToEvents()
+	events.SubscribeToEvents()
 
 	adapter.CreateCustomValidator()
 
