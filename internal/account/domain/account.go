@@ -35,6 +35,7 @@ type (
 
 	AccountRepository interface {
 		Paginate(criteria *criteria.Criteria) (criteria.Paginate, error)
+		Upsert(account *Account) error
 	}
 
 	AccountProviderService interface {
@@ -43,7 +44,11 @@ type (
 )
 
 func NewAccount(accountID systemdomain.EntityID, accountHolder AccountHolder, ownerRecord systemdomain.AppClient) *Account {
-	accountHolder.SetAccountHolder(accountHolder)
+	err := accountHolder.SetAccountHolder(accountHolder)
+
+	if err != nil {
+		panic(err)
+	}
 
 	return &Account{
 		AccountID:      accountID.GetID(),

@@ -41,7 +41,7 @@ func (r *AccountMongoRepository) Paginate(cri *criteria.Criteria) (criteria.Pagi
 	}, nil
 }
 
-func (r *AccountMongoRepository) Save(account accountdomain.Account) error {
+func (r *AccountMongoRepository) Upsert(account *accountdomain.Account) error {
 	return r.repo.Persist(account, &bson.D{
 		{"accountId", account.GetAccountID()},
 	})

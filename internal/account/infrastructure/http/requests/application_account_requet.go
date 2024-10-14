@@ -2,7 +2,6 @@ package accountreq
 
 import (
 	accountdomain "digital-bank/internal/account/domain"
-	systemdomain "digital-bank/internal/system/domain"
 )
 
 type (
@@ -15,6 +14,5 @@ type (
 		accountdomain.Company
 		CompanyType string                                `json:"companyType" binding:"required,companyTypeValidate"`
 		Partners    []ApplicationAccountIndividualRequest `json:"partners"`
-		OwnerRecord systemdomain.AppClientIdentifier      `json:"ownerRecord"`
 	}
 )

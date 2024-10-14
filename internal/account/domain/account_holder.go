@@ -34,7 +34,7 @@ type (
 		SetAccountHolder(holder interface{}) *systemdomain.Error
 		ToMap() map[string]interface{}
 		SetKYC(kyc KYC)
-		SetDocument(document Document, dni string)
+		SetDocument(document Document, dni string) *systemdomain.Error
 		GetDocuments() []Document
 	}
 
@@ -154,7 +154,7 @@ func (i *Individual) SetKYC(kyc KYC) {
 	i.KYC = &kyc
 }
 
-func (i *Individual) SetDocument(document Document, dni string) {
+func (i *Individual) SetDocument(document Document, dni string) *systemdomain.Error {
 	documentExist := false
 	for idx, doc := range i.Documents {
 		if doc.GetDocumentType() == document.GetDocumentType() {
@@ -166,6 +166,8 @@ func (i *Individual) SetDocument(document Document, dni string) {
 	if !documentExist {
 		i.Documents = append(i.Documents, document)
 	}
+
+	return nil
 }
 
 func (i *Individual) GetDocuments() []Document {

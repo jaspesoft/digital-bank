@@ -43,7 +43,7 @@ type (
 		AccountHolder
 		AddPartner(partner Individual)
 		EditPartner(dni string, updatedPartner Individual)
-		setDocument(document Document, dni string)
+		setDocument(document Document, dni string) *systemdomain.Error
 		UpdatePartnerKYC(dni string, kyc *KYC)
 		GetAddress() Address
 		GetRegisteredAddress() Address
@@ -81,6 +81,10 @@ type (
 		Partners          *[]Individual      `bson:"partners" json:"partners"`
 	}
 )
+
+func (c *Company) GetAddress() Address {
+	panic("not implement for company")
+}
 
 func (c *Company) GetType() AccountType {
 	return COMPANY_CLIENT
@@ -155,7 +159,7 @@ func (c *Company) GetIDNumber() string {
 	return c.RegisterNumber
 }
 
-func (c *Company) setDocument(document Document, dni string) *systemdomain.Error {
+func (c *Company) SetDocument(document Document, dni string) *systemdomain.Error {
 	// assign or updated document to company
 	if c.GetIDNumber() == dni {
 		documentExist := false

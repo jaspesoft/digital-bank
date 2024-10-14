@@ -4,21 +4,45 @@ import (
 	accountdomain "digital-bank/internal/account/domain"
 	reqaccount "digital-bank/internal/account/infrastructure/http/requests"
 	systemdomain "digital-bank/internal/system/domain"
+	"log"
 )
 
 type (
 	ApplicationAccount struct {
 		accountRepository accountdomain.AccountRepository
+		serviceProvider   accountdomain.AccountProviderService
 	}
 )
 
-func NewApplicationAccount(accountRepository accountdomain.AccountRepository) *ApplicationAccount {
+func NewApplicationAccount(
+	accountRepository accountdomain.AccountRepository,
+	serviceProvider accountdomain.AccountProviderService,
+) *ApplicationAccount {
 	return &ApplicationAccount{
 		accountRepository: accountRepository,
+		serviceProvider:   serviceProvider,
 	}
 }
 
-func (a *ApplicationAccount) Run(req reqaccount.ApplicationAccountCompanyRequest) systemdomain.Result[string] {
+func (a *ApplicationAccount) Run(
+	entityID systemdomain.EntityID, appClient systemdomain.AppClient, req reqaccount.ApplicationAccountCompanyRequest,
+) systemdomain.Result[string] {
 
-	return systemdomain.NewResult[string]("applicationId", nil)
+	account := accountdomain.NewAccount(entityID, &req.Company, appClient)
+
+	err := a.serviceProvider.CreateApplication(account)
+
+	if err != nil {
+		log.Println("create application error", err)
+		return systemdomain.NewResult[string]("", systemdomain.NewError(400, err.Error()))
+	}
+
+	err = a.accountRepository.Upsert(account)
+
+	if err != nil {
+		log.Println("save account error", err)
+		return systemdomain.NewResult[string]("", systemdomain.NewError(500, "internal server error in save account"))
+	}
+
+	return systemdomain.NewResult[string](account.GetApplicationID(), nil)
 }
