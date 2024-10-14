@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func ApplicationPayloadPrepare(a accountdomain.Account) map[string]interface{} {
+func ApplicationPayloadPrepare(a *accountdomain.Account) map[string]interface{} {
 	productId := "DEPOSIT_BASIC"
 	assetTypeId := "FIAT_MAINNET_USD"
 
@@ -83,7 +83,7 @@ func ApplicationPayloadPrepare(a accountdomain.Account) map[string]interface{} {
 		}
 	}
 
-	holder, _ := a.GetAccountHolder().(accountdomain.Individual)
+	holder := a.GetAccountHolder().(accountdomain.Individual)
 
 	resident := "NON_RESIDENT_ALIEN"
 	if holder.GetAddress().Country == "" {
@@ -163,7 +163,7 @@ func PartnerPayloadPrepare(partner accountdomain.Individual) map[string]interfac
 			"country_code":  partner.Address.Country,
 		},
 		"telephone_number":     partner.PhoneNumber,
-		"tax_reference_number": partner.TaxId,
+		"tax_reference_number": partner.TaxID,
 		"passport_number":      partner.Passport,
 		"date_of_birth":        partner.DateBirth,
 	}

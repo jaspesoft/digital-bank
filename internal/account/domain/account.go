@@ -22,6 +22,7 @@ type (
 
 	Account struct {
 		AccountID      string                           `bson:"accountId" json:"accountId"`
+		ApplicationID  string                           `bson:"applicationId" json:"applicationId"`
 		Name           string                           `bson:"name" json:"name"`
 		TypeAccount    AccountType                      `bson:"type" json:"clientType"`
 		AccountHolder  AccountHolder                    `bson:"accountHolder" json:"accountHolder"`
@@ -34,15 +35,20 @@ type (
 
 	AccountRepository interface {
 		Paginate(criteria *criteria.Criteria) (criteria.Paginate, error)
+		Upsert(account *Account) error
 	}
 
 	AccountProviderService interface {
-		CreateApplication(a Account) (string, error)
+		CreateApplication(a *Account) error
 	}
 )
 
 func NewAccount(accountID systemdomain.EntityID, accountHolder AccountHolder, ownerRecord systemdomain.AppClient) *Account {
-	accountHolder.SetAccountHolder(accountHolder)
+	err := accountHolder.SetAccountHolder(accountHolder)
+
+	if err != nil {
+		panic(err)
+	}
 
 	return &Account{
 		AccountID:      accountID.GetID(),
@@ -107,6 +113,14 @@ func (a *Account) Processing() {
 
 func (a *Account) Submit() {
 	a.Status = SUBMITTED
+}
+
+func (a *Account) SetApplicationID(applicationID string) {
+	a.AccountID = applicationID
+}
+
+func (a *Account) GetApplicationID() string {
+	return a.ApplicationID
 }
 
 func (a *Account) ToMap() map[string]interface{} {

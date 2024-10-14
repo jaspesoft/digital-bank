@@ -43,7 +43,7 @@ type (
 		AccountHolder
 		AddPartner(partner Individual)
 		EditPartner(dni string, updatedPartner Individual)
-		setDocument(document Document, dni string)
+		setDocument(document Document, dni string) *systemdomain.Error
 		UpdatePartnerKYC(dni string, kyc *KYC)
 		GetAddress() Address
 		GetRegisteredAddress() Address
@@ -78,9 +78,13 @@ type (
 		KYC               *KYC               `bson:"kyc" json:"kyc,omitempty"`
 		InvestmentProfile *InvestmentProfile `bson:"investmentProfile" json:"investmentProfile"`
 		KYCProfile        *KYCProfile        `bson:"kycProfile" json:"kycProfile"`
-		Partners          []Individual       `bson:"partners" json:"partners"`
+		Partners          *[]Individual      `bson:"partners" json:"partners"`
 	}
 )
+
+func (c *Company) GetAddress() Address {
+	panic("not implement for company")
+}
 
 func (c *Company) GetType() AccountType {
 	return COMPANY_CLIENT
@@ -120,31 +124,31 @@ func (c *Company) SetKYC(kyc KYC) {
 }
 
 func (c *Company) AddPartner(partner Individual) {
-	c.Partners = append(c.Partners, partner)
+	*c.Partners = append(*c.Partners, partner)
+
 }
 
 func (c *Company) EditPartner(dni string, updatedPartner Individual) {
-	for index, partner := range c.Partners {
+	for index, partner := range *c.Partners {
 		if partner.DNI == dni {
-			c.Partners[index].FirstName = updatedPartner.FirstName
-			c.Partners[index].MiddleName = updatedPartner.MiddleName
-			c.Partners[index].LastName = updatedPartner.LastName
-			c.Partners[index].TaxID = updatedPartner.TaxID
-			c.Partners[index].Passport = updatedPartner.Passport
-			c.Partners[index].DateBirth = updatedPartner.DateBirth
-			c.Partners[index].ResidencyStatus = updatedPartner.ResidencyStatus
-			c.Partners[index].Address = updatedPartner.Address
+			(*c.Partners)[index].FirstName = updatedPartner.FirstName
+			(*c.Partners)[index].MiddleName = updatedPartner.MiddleName
+			(*c.Partners)[index].LastName = updatedPartner.LastName
+			(*c.Partners)[index].TaxID = updatedPartner.TaxID
+			(*c.Partners)[index].Passport = updatedPartner.Passport
+			(*c.Partners)[index].DateBirth = updatedPartner.DateBirth
+			(*c.Partners)[index].ResidencyStatus = updatedPartner.ResidencyStatus
+			(*c.Partners)[index].Address = updatedPartner.Address
 
 			break
 		}
 	}
-
 }
 
 func (c *Company) UpdatePartnerKYC(dni string, kyc *KYC) {
-	for index, partner := range c.Partners {
+	for index, partner := range *c.Partners {
 		if partner.DNI == dni {
-			c.Partners[index].KYC = kyc
+			(*c.Partners)[index].KYC = kyc
 			break
 		}
 	}
@@ -155,7 +159,7 @@ func (c *Company) GetIDNumber() string {
 	return c.RegisterNumber
 }
 
-func (c *Company) setDocument(document Document, dni string) *systemdomain.Error {
+func (c *Company) SetDocument(document Document, dni string) *systemdomain.Error {
 	// assign or updated document to company
 	if c.GetIDNumber() == dni {
 		documentExist := false
@@ -174,14 +178,14 @@ func (c *Company) setDocument(document Document, dni string) *systemdomain.Error
 		return nil
 	}
 
-	if len(c.Partners) == 0 {
+	if len(*c.Partners) == 0 {
 		fmt.Println("Company partners not found")
 		return systemdomain.NewError(404, "Company partners not found")
 
 	}
 
 	// assign or updated document to partner
-	for _, partner := range c.Partners {
+	for _, partner := range *c.Partners {
 		if partner.DNI != dni {
 			continue
 		}
@@ -221,7 +225,11 @@ func (c *Company) GetKYCProfile() *KYCProfile {
 }
 
 func (c *Company) GetPartners() []Individual {
-	return c.Partners
+	return *c.Partners
+}
+
+func (c *Company) GetDocuments() []Document {
+	return c.Documents
 }
 
 func (c *Company) ToMap() map[string]interface{} {

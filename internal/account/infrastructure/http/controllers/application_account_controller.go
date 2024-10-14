@@ -1,11 +1,13 @@
 package accountcontroller
 
 import (
+	"digital-bank/infrastructure/adapter"
 	requestsaccount "digital-bank/internal/account/infrastructure/http/requests"
 	accountpersistence "digital-bank/internal/account/infrastructure/persistence"
 	usecaseaccount "digital-bank/internal/account/usecase"
 	systempersistence "digital-bank/internal/system/infrastructure/persistence"
 	systemusecase "digital-bank/internal/system/usecase"
+	"digital-bank/pkg/services/layer2"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -25,13 +27,12 @@ func ApplicationAccountCompanyController(c *gin.Context) {
 		systempersistence.NewAppClientRedisRepository(),
 	).Run(companyID.(string))
 
-	jsonApplicationAccountCompanyRequest.OwnerRecord = appClient.GetValue().GetIdentifier()
-
 	fmt.Println(jsonApplicationAccountCompanyRequest)
 
 	resp := usecaseaccount.NewApplicationAccount(
 		accountpersistence.NewAccountMongoRepository(),
-	).Run(jsonApplicationAccountCompanyRequest)
+		layer2.NewLayer2Application(),
+	).Run(adapter.NewUUIDEntityID(), *appClient.GetValue(), jsonApplicationAccountCompanyRequest)
 
 	if !resp.IsOk() {
 		c.JSON(resp.GetError().GetHTTPCode(), gin.H{"error": resp.GetError().Error()})

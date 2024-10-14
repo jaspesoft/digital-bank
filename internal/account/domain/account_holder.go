@@ -34,7 +34,8 @@ type (
 		SetAccountHolder(holder interface{}) *systemdomain.Error
 		ToMap() map[string]interface{}
 		SetKYC(kyc KYC)
-		SetDocument(document Document, dni string)
+		SetDocument(document Document, dni string) *systemdomain.Error
+		GetDocuments() []Document
 	}
 
 	InvestmentProfile struct {
@@ -74,23 +75,24 @@ type (
 	}
 
 	Individual struct {
-		FirstName         string              `bson:"firstName" json:"firstName"`
-		DNI               string              `bson:"dni" json:"dni"`
-		MiddleName        *string             `bson:"middleName" json:"middleName"`
-		LastName          string              `bson:"lastName" json:"lastName"`
-		PhoneNumber       string              `bson:"phoneNumber" json:"phoneNumber"`
-		TaxID             *string             `bson:"taxID" json:"taxId,omitempty"`
-		Email             string              `bson:"email" json:"email"`
-		Passport          *string             `bson:"passport" json:"passport,omitempty"`
-		DateBirth         *CustomTime         `bson:"dateBirth" json:"dateBirth,omitempty" time_utc:"1"`
-		KYC               *KYC                `bson:"kyc" json:"kyc,omitempty"`
-		KYCProfile        *KYCProfilePersonal `bson:"kycProfile" json:"kycProfile"`
-		Occupation        string              `bson:"occupation" json:"occupation"`
-		EmploymentStatus  EmploymentStatus    `bson:"employmentStatus" json:"employmentStatus"`
-		ResidencyStatus   ResidencyStatus     `bson:"residencyStatus" json:"residencyStatus"`
-		Documents         []Document          `bson:"documents" json:"documents"`
-		Address           *Address            `bson:"address" json:"address,omitempty"`
-		InvestmentProfile *InvestmentProfile  `bson:"investmentProfile" json:"investmentProfile,omitempty"`
+		FirstName            string              `bson:"firstName" json:"firstName"`
+		DNI                  string              `bson:"dni" json:"dni"`
+		MiddleName           *string             `bson:"middleName" json:"middleName"`
+		LastName             string              `bson:"lastName" json:"lastName"`
+		PhoneNumber          string              `bson:"phoneNumber" json:"phoneNumber"`
+		TaxID                string              `bson:"taxID" json:"taxId,omitempty"`
+		Email                string              `bson:"email" json:"email"`
+		Passport             *string             `bson:"passport" json:"passport,omitempty"`
+		DateBirth            *CustomTime         `bson:"dateBirth" json:"dateBirth,omitempty" time_utc:"1"`
+		KYC                  *KYC                `bson:"kyc" json:"kyc,omitempty"`
+		KYCProfile           *KYCProfilePersonal `bson:"kycProfile" json:"kycProfile"`
+		Occupation           string              `bson:"occupation" json:"occupation"`
+		EmploymentStatus     EmploymentStatus    `bson:"employmentStatus" json:"employmentStatus"`
+		ResidencyStatus      ResidencyStatus     `bson:"residencyStatus" json:"residencyStatus"`
+		Documents            []Document          `bson:"documents" json:"documents"`
+		Address              *Address            `bson:"address" json:"address,omitempty"`
+		InvestmentProfile    *InvestmentProfile  `bson:"investmentProfile" json:"investmentProfile,omitempty"`
+		PartnerApplicationId string              `bson:"partnerApplicationId" json:"partnerApplicationId"`
 	}
 )
 
@@ -152,7 +154,7 @@ func (i *Individual) SetKYC(kyc KYC) {
 	i.KYC = &kyc
 }
 
-func (i *Individual) SetDocument(document Document, dni string) {
+func (i *Individual) SetDocument(document Document, dni string) *systemdomain.Error {
 	documentExist := false
 	for idx, doc := range i.Documents {
 		if doc.GetDocumentType() == document.GetDocumentType() {
@@ -164,6 +166,12 @@ func (i *Individual) SetDocument(document Document, dni string) {
 	if !documentExist {
 		i.Documents = append(i.Documents, document)
 	}
+
+	return nil
+}
+
+func (i *Individual) GetDocuments() []Document {
+	return i.Documents
 }
 
 func (i *Individual) ToMap() map[string]interface{} {
