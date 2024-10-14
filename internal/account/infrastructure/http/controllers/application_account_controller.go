@@ -7,6 +7,7 @@ import (
 	usecaseaccount "digital-bank/internal/account/usecase"
 	systempersistence "digital-bank/internal/system/infrastructure/persistence"
 	systemusecase "digital-bank/internal/system/usecase"
+	credentials "digital-bank/pkg/service_credentials"
 	"digital-bank/pkg/services/layer2"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -27,11 +28,22 @@ func ApplicationAccountCompanyController(c *gin.Context) {
 		systempersistence.NewAppClientRedisRepository(),
 	).Run(companyID.(string))
 
+	if !appClient.IsOk() {
+		c.JSON(appClient.GetError().GetHTTPCode(), gin.H{"error": appClient.GetError().Error()})
+		return
+	}
+
 	fmt.Println(jsonApplicationAccountCompanyRequest)
+
+	credential, err := credentials.FindApplicationClientCredentials(appClient.GetValue())
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	resp := usecaseaccount.NewApplicationAccount(
 		accountpersistence.NewAccountMongoRepository(),
-		layer2.NewLayer2Application(),
+		layer2.NewLayer2Application(credential.Layer2Credentials),
 	).Run(adapter.NewUUIDEntityID(), *appClient.GetValue(), jsonApplicationAccountCompanyRequest)
 
 	if !resp.IsOk() {

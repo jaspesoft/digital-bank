@@ -3,6 +3,7 @@ package layer2
 import (
 	accountdomain "digital-bank/internal/account/domain"
 	"digital-bank/pkg"
+	credentials "digital-bank/pkg/service_credentials"
 	layer2helpers "digital-bank/pkg/services/layer2/helpers"
 	"encoding/json"
 	"fmt"
@@ -17,9 +18,9 @@ type (
 	}
 )
 
-func NewLayer2Application() *Layer2Application {
+func NewLayer2Application(credentials credentials.Layer2Credentials) *Layer2Application {
 	return &Layer2Application{
-		c: NewLayer2(),
+		c: NewLayer2(credentials),
 	}
 }
 

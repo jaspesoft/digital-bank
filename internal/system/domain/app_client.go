@@ -15,15 +15,19 @@ const (
 type (
 	AppClientStatus string
 
+	Credentials struct {
+		CompanyID string `json:"companyId"`
+		Secret    string `json:"secret"`
+	}
+
 	AppClient struct {
 		ClientID              string          `json:"clientId"`
 		CompanyName           string          `json:"companyName"`
 		Email                 string          `json:"email"`
 		PhoneNumber           string          `json:"phoneNumber"`
-		CompanyID             string          `json:"companyId"`
-		Secret                string          `json:"secret"`
 		TechnologyProviderFee *TransactionFee `json:"technologyProviderFee"`
 		Commissions           *TransactionFee `json:"commissions"`
+		Credentials           Credentials     `json:"credentials"`
 		Status                AppClientStatus `json:"status"`
 		CreatedAt             time.Time       `json:"createdAt"`
 	}
@@ -74,13 +78,13 @@ func (c *AppClient) GetStatus() AppClientStatus {
 }
 
 func (c *AppClient) GetTokenAPI() string {
-	data := c.CompanyID + ":" + c.Secret
+	data := c.Credentials.CompanyID + ":" + c.Credentials.Secret
 	return base64.StdEncoding.EncodeToString([]byte(data))
 }
 
 func (c *AppClient) GenerateNewCredentialsAPI() {
-	c.CompanyID = internal.GenerateRandomString(16)
-	c.Secret = base64.StdEncoding.EncodeToString([]byte(internal.GenerateRandomString(32)))
+	c.Credentials.CompanyID = internal.GenerateRandomString(24)
+	c.Credentials.Secret = base64.StdEncoding.EncodeToString([]byte(internal.GenerateRandomString(64)))
 }
 
 func (c *AppClient) GetIdentifier() AppClientIdentifier {
@@ -98,11 +102,10 @@ func (c *AppClient) ToMap() map[string]interface{} {
 	return map[string]interface{}{
 		"clientId":              c.ClientID,
 		"companyName":           c.CompanyName,
-		"companyId":             c.CompanyID,
 		"createdAt":             c.CreatedAt,
 		"email":                 c.Email,
 		"phoneNumber":           c.PhoneNumber,
-		"secret":                c.Secret,
+		"credentials":           c.Credentials,
 		"status":                c.Status,
 		"commissions":           c.Commissions.ToMap(),
 		"technologyProviderFee": c.TechnologyProviderFee.ToMap(),
@@ -111,6 +114,10 @@ func (c *AppClient) ToMap() map[string]interface{} {
 
 func (c *AppClient) Disable() {
 	c.Status = AppClientStatusDisabled
+}
+
+func (c *AppClient) GetCompanyID() string {
+	return c.Credentials.CompanyID
 }
 
 func AppClientFromPrimitive(client map[string]interface{}) *AppClient {
@@ -123,13 +130,15 @@ func AppClientFromPrimitive(client map[string]interface{}) *AppClient {
 	return &AppClient{
 		ClientID:              client["clientId"].(string),
 		CompanyName:           client["companyName"].(string),
-		CompanyID:             client["companyId"].(string),
-		Secret:                client["secret"].(string),
 		Status:                AppClientStatus(client["status"].(string)),
 		Commissions:           TransactionFeeFromPrimitive(client["commissions"].(map[string]interface{})),
 		TechnologyProviderFee: TransactionFeeFromPrimitive(client["technologyProviderFee"].(map[string]interface{})),
 		CreatedAt:             myRawDate,
 		Email:                 client["email"].(string),
 		PhoneNumber:           client["phoneNumber"].(string),
+		Credentials: Credentials{
+			CompanyID: client["credentials"].(map[string]interface{})["companyId"].(string),
+			Secret:    client["credentials"].(map[string]interface{})["secret"].(string),
+		},
 	}
 }

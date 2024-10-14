@@ -4,6 +4,7 @@ import (
 	"crypto/ed25519"
 	"crypto/x509"
 	"digital-bank/pkg/cache"
+	credentials "digital-bank/pkg/service_credentials"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -24,6 +25,7 @@ type (
 		endPointURL string
 		payload     interface{}
 		method      string
+		credentials credentials.Layer2Credentials
 	}
 
 	TokenResponse struct {
@@ -31,12 +33,13 @@ type (
 	}
 )
 
-func NewLayer2() *Layer2 {
+func NewLayer2(credentials credentials.Layer2Credentials) *Layer2 {
 	client := resty.New()
 
 	return &Layer2{
 		httpClient:  client,
 		endPointURL: "",
+		credentials: credentials,
 	}
 }
 
@@ -48,7 +51,7 @@ func (l *Layer2) getHeader() map[string]string {
 		"Authorization": "Bearer " + token,
 	}
 
-	if os.Getenv("SIGNATURE_KEY") != "" {
+	if l.credentials.Signature != "" {
 		signature, timestamp := l.genSignature()
 		fmt.Println("signature", signature)
 
@@ -86,7 +89,7 @@ func (l *Layer2) Auth() (string, error) {
 
 	var header = map[string]string{
 		"Content-Type":  "application/x-www-form-urlencoded",
-		"Authorization": "Basic " + os.Getenv("LAYER2_TOKEN"),
+		"Authorization": "Basic " + l.credentials.AuthToken,
 	}
 
 	r, err := l.httpClient.R().SetHeaders(header).Post(url + scope)
@@ -127,7 +130,7 @@ func (l *Layer2) genSignature() (string, int64) {
 
 	fmt.Println("message", message)
 
-	privateKeyPem := hexToPem(os.Getenv("SIGNATURE_KEY"), "PRIVATE")
+	privateKeyPem := hexToPem(l.credentials.Signature, "PRIVATE")
 	return signMessage(privateKeyPem, message), timestamp
 }
 
@@ -137,7 +140,7 @@ func (l *Layer2) Post() ([]byte, error) {
 	r, err := l.httpClient.R().
 		SetHeaders(l.getHeader()).
 		SetBody(l.payload).
-		Post(os.Getenv("LAYER2_URL") + l.endPointURL)
+		Post(l.credentials.URL + l.endPointURL)
 
 	if err != nil {
 		return nil, err
@@ -163,7 +166,7 @@ func (l *Layer2) Get() ([]byte, error) {
 	l.payload = nil
 	l.method = "GET"
 
-	r, err := l.httpClient.R().SetHeaders(l.getHeader()).Get(os.Getenv("LAYER2_URL") + l.endPointURL)
+	r, err := l.httpClient.R().SetHeaders(l.getHeader()).Get(l.credentials.URL + l.endPointURL)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +195,7 @@ func (l *Layer2) SendDocument(file []byte, docID string) error {
 		"Authorization": "Bearer " + token,
 	}
 
-	r, err := l.httpClient.R().SetHeaders(header).SetBody(file).Post("v1/documents/" + docID)
+	r, err := l.httpClient.R().SetHeaders(header).SetBody(file).Post(l.credentials.URL + "v1/documents/" + docID)
 
 	if err != nil {
 		return err
