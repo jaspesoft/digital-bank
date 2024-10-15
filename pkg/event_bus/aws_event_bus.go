@@ -42,7 +42,7 @@ func (s *AWSEventBus) Emit(data interface{}, topic systemdomain.Topic) error {
 	return nil
 }
 
-func (s *AWSEventBus) Subscribe(topic systemdomain.Topic, callback func(Message)) {
+func (s *AWSEventBus) Subscribe(topic systemdomain.Topic, callback func(systemdomain.Message)) {
 	queueURL := fmt.Sprintf("https://sqs.%s.amazonaws.com/%s/%s-sqs", os.Getenv("AWS_REGION"), os.Getenv("AWS_ACCOUNT"), topic)
 
 	params := &sqs.ReceiveMessageInput{
@@ -71,13 +71,13 @@ func (s *AWSEventBus) Subscribe(topic systemdomain.Topic, callback func(Message)
 					continue
 				}
 
-				// Procesa el mensaje
-				callback(Message{
+				// Process the message
+				callback(systemdomain.Message{
 					Data:  payload.Message,
 					Topic: topic,
 				})
 
-				// Elimina el mensaje de la cola después de procesarlo
+				// Delete the message from the queue after processing it
 				_, err = s.sqs.DeleteMessage(&sqs.DeleteMessageInput{
 					QueueUrl:      aws.String(queueURL),
 					ReceiptHandle: message.ReceiptHandle,
@@ -90,5 +90,4 @@ func (s *AWSEventBus) Subscribe(topic systemdomain.Topic, callback func(Message)
 	}
 
 	go receiveMessage()
-
 }

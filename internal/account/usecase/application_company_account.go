@@ -25,10 +25,10 @@ func NewApplicationAccount(
 }
 
 func (a *ApplicationAccount) Run(
-	entityID systemdomain.EntityID, appClient systemdomain.AppClient, req reqaccount.ApplicationAccountCompanyRequest,
+	AccountUser *accountdomain.AccountUser, appClient systemdomain.AppClient, req reqaccount.ApplicationAccountCompanyRequest,
 ) systemdomain.Result[string] {
 
-	account := accountdomain.NewAccount(entityID, &req.Company, appClient)
+	account := accountdomain.NewAccount(AccountUser, &req.Company)
 
 	err := a.serviceProvider.CreateApplication(account)
 

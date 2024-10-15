@@ -10,4 +10,6 @@ func AccountRoute(r *gin.Engine) {
 	account := r.Group("/api/v1/account").Use(middleware.AuthMiddleware)
 
 	account.POST("/application", accountcontroller.ApplicationAccountCompanyController)
+	account.POST("/register", accountcontroller.AccountUserRegisterController)
+	account.PUT("/change-password", accountcontroller.ChangePassswordController)
 }

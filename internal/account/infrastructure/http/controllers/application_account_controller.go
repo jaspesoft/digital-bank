@@ -1,7 +1,6 @@
 package accountcontroller
 
 import (
-	"digital-bank/infrastructure/adapter"
 	requestsaccount "digital-bank/internal/account/infrastructure/http/requests"
 	accountpersistence "digital-bank/internal/account/infrastructure/persistence"
 	usecaseaccount "digital-bank/internal/account/usecase"
@@ -9,8 +8,8 @@ import (
 	systemusecase "digital-bank/internal/system/usecase"
 	credentials "digital-bank/pkg/service_credentials"
 	"digital-bank/pkg/services/layer2"
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
@@ -33,9 +32,15 @@ func ApplicationAccountCompanyController(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(jsonApplicationAccountCompanyRequest)
+	log.Println(jsonApplicationAccountCompanyRequest)
 
 	credential, err := credentials.FindApplicationClientCredentials(appClient.GetValue())
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	accountUser, err := accountpersistence.NewAccountUserMongoRepository().FindByEmail(jsonApplicationAccountCompanyRequest.Email)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -44,7 +49,7 @@ func ApplicationAccountCompanyController(c *gin.Context) {
 	resp := usecaseaccount.NewApplicationAccount(
 		accountpersistence.NewAccountMongoRepository(),
 		layer2.NewLayer2Application(credential.Layer2Credentials),
-	).Run(adapter.NewUUIDEntityID(), *appClient.GetValue(), jsonApplicationAccountCompanyRequest)
+	).Run(accountUser, *appClient.GetValue(), jsonApplicationAccountCompanyRequest)
 
 	if !resp.IsOk() {
 		c.JSON(resp.GetError().GetHTTPCode(), gin.H{"error": resp.GetError().Error()})

@@ -28,7 +28,6 @@ type (
 		AccountHolder  AccountHolder                    `bson:"accountHolder" json:"accountHolder"`
 		Status         AccountStatus                    `bson:"status" json:"status"`
 		TransactionFee *systemdomain.TransactionFee     `bson:"transactionFee" json:"transactionFee"`
-		CreatedAt      time.Time                        `bson:"createdAt" json:"createdAt"`
 		ApprovedAt     time.Time                        `bson:"createdAt" json:"approvedAt"`
 		OwnerRecord    systemdomain.AppClientIdentifier `bson:"clientOwnerRecord" json:"ownerRecord"`
 	}
@@ -43,7 +42,7 @@ type (
 	}
 )
 
-func NewAccount(accountID systemdomain.EntityID, accountHolder AccountHolder, ownerRecord systemdomain.AppClient) *Account {
+func NewAccount(accountUser *AccountUser, accountHolder AccountHolder) *Account {
 	err := accountHolder.SetAccountHolder(accountHolder)
 
 	if err != nil {
@@ -51,14 +50,10 @@ func NewAccount(accountID systemdomain.EntityID, accountHolder AccountHolder, ow
 	}
 
 	return &Account{
-		AccountID:      accountID.GetID(),
-		Name:           accountHolder.GetName(),
-		TypeAccount:    accountHolder.GetType(),
-		AccountHolder:  accountHolder,
-		Status:         REGISTERED,
-		TransactionFee: ownerRecord.GetCommissionsDefault(),
-		OwnerRecord:    ownerRecord.GetIdentifier(),
-		CreatedAt:      time.Now(),
+		AccountID:     accountUser.GetAccountID(),
+		Name:          accountHolder.GetName(),
+		TypeAccount:   accountHolder.GetType(),
+		AccountHolder: accountHolder,
 	}
 }
 
@@ -121,16 +116,4 @@ func (a *Account) SetApplicationID(applicationID string) {
 
 func (a *Account) GetApplicationID() string {
 	return a.ApplicationID
-}
-
-func (a *Account) ToMap() map[string]interface{} {
-	return map[string]interface{}{
-		"name":           a.Name,
-		"type":           a.TypeAccount,
-		"accountHolder":  a.AccountHolder.ToMap(),
-		"status":         a.Status,
-		"transactionFee": a.TransactionFee.ToMap(),
-		"createdAt":      a.CreatedAt,
-		"approvedAt":     a.ApprovedAt,
-	}
 }

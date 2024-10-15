@@ -1,7 +1,7 @@
 package systemdomain
 
 type (
-	EntityID interface {
+	EntityIDAdapter interface {
 		GetID() string
 	}
 )
