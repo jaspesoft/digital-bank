@@ -4,7 +4,6 @@ import (
 	accountdomain "digital-bank/internal/account/domain"
 	"digital-bank/pkg"
 	credentials "digital-bank/pkg/service_credentials"
-	layer2helpers "digital-bank/pkg/services/layer2/helpers"
 	"encoding/json"
 	"fmt"
 	"github.com/go-resty/resty/v2"
@@ -25,7 +24,7 @@ func NewLayer2Application(credentials credentials.Layer2Credentials) *Layer2Appl
 }
 
 func (l *Layer2Application) CreateApplication(a *accountdomain.Account) error {
-	l.c.payload = layer2helpers.ApplicationPayloadPrepare(a)
+	l.c.payload = ApplicationPayloadPrepare(a)
 	l.c.endPointURL = "v1/applications"
 
 	bodyResp, err := l.c.Post()
@@ -41,7 +40,7 @@ func (l *Layer2Application) CreateApplication(a *accountdomain.Account) error {
 
 	a.SetApplicationID(res.data.id)
 
-	layer2helpers.GenerateContract(a)
+	GenerateContract(a)
 
 	if a.GetAccountHolder().GetType() == accountdomain.COMPANY_CLIENT {
 		l.sendPartner(a)
@@ -119,7 +118,7 @@ func (l *Layer2Application) sendPartner(a *accountdomain.Account) {
 
 	for _, partner := range partners {
 		l.c.endPointURL = "v1/applications/" + a.GetApplicationID() + "/individual"
-		l.c.payload = layer2helpers.PartnerPayloadPrepare(partner)
+		l.c.payload = PartnerPayloadPrepare(partner)
 
 		bodyResp, err := l.c.Post()
 		if err != nil {
@@ -162,13 +161,13 @@ func (l *Layer2Application) sendDocument(docs []accountdomain.Document, docError
 	client := resty.New()
 
 	for _, document := range docs {
-		layer2DocConverted := layer2helpers.ConvertDocumentTypeToLayer2(document.DocumentType, document.GetDocumentSide())
+		layer2DocConverted := ConvertDocumentTypeToLayer2(document.DocumentType, document.GetDocumentSide())
 
 		if layer2DocConverted == "" {
 			continue
 		}
 
-		Layer2DocumentID := layer2helpers.LookLayer2DocumentID(docErrors, layer2DocConverted)
+		Layer2DocumentID := LookLayer2DocumentID(docErrors, layer2DocConverted)
 
 		if Layer2DocumentID == nil {
 			continue

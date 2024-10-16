@@ -6,14 +6,14 @@ import (
 )
 
 func onboardingInProvider() {
-	eventbus.NewAWSEventBus().Subscribe(systemdomain.TOPIC_ONBOARDING_IN_PROVIDER, func(msg eventbus.Message) {
+	eventbus.NewAWSEventBus().Subscribe(systemdomain.TOPIC_ONBOARDING_IN_PROVIDER, func(msg systemdomain.Message) {
 		// code to handle the event
 
 	})
 }
 
 func onboardingUpdateData() {
-	eventbus.NewAWSEventBus().Subscribe(systemdomain.TOPIC_ONBOARDING_UPDATE_DATA, func(msg eventbus.Message) {
+	eventbus.NewAWSEventBus().Subscribe(systemdomain.TOPIC_ONBOARDING_UPDATE_DATA, func(msg systemdomain.Message) {
 		// code to handle the event
 
 	})

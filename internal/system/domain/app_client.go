@@ -45,7 +45,7 @@ type (
 )
 
 func NewAppClient(
-	clintID EntityID, companyName, email, phoneNumber string, commissions *TransactionFee, technologyProviderFee *TransactionFee,
+	clintID EntityIDAdapter, companyName, email, phoneNumber string, commissions *TransactionFee, technologyProviderFee *TransactionFee,
 ) *AppClient {
 
 	client := &AppClient{

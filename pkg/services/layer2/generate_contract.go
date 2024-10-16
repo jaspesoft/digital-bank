@@ -1,4 +1,4 @@
-package layer2helpers
+package layer2
 
 import (
 	"bytes"
@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	ACCOUNT_AGREEMENT  ContractType = "ACCOUNT_AGREEMENT"
-	FORTRESS_AGREEMENT ContractType = "FORTRESS_AGREEMENT"
+	CONTRACT_ACCOUNT_AGREEMENT  ContractType = "ACCOUNT_AGREEMENT"
+	CONTRACT_FORTRESS_AGREEMENT ContractType = "FORTRESS_AGREEMENT"
 )
 
 type ContractType string
@@ -93,7 +93,7 @@ func makeContract(contract ContractType, replacements []map[string]string) ([]by
 
 	// Read the HTML file
 	htmlFilePath := "../templates_contract/account_agreement.html"
-	if contract == FORTRESS_AGREEMENT {
+	if contract == CONTRACT_FORTRESS_AGREEMENT {
 		htmlFilePath = "../templates_contract/fortress_agreement.html"
 	}
 
@@ -115,17 +115,17 @@ func makeContract(contract ContractType, replacements []map[string]string) ([]by
 
 func GenerateContract(a *accountdomain.Account) {
 	replacements := mapperContractValue(a)
-	pdfByte, err := makeContract(FORTRESS_AGREEMENT, replacements)
+	pdfByte, err := makeContract(CONTRACT_FORTRESS_AGREEMENT, replacements)
 	if err != nil {
-		log.Println("Error generating the contract: "+string(FORTRESS_AGREEMENT), err)
+		log.Println("Error generating the contract: "+string(CONTRACT_FORTRESS_AGREEMENT), err)
 		return
 	}
 
 	s3 := pkg.NewAWSS3Storage(os.Getenv("AWS_S3_BUCKET_DOCUMENT"))
-	fileName, err := s3.UploadFile(pdfByte, string(FORTRESS_AGREEMENT))
+	fileName, err := s3.UploadFile(pdfByte, string(CONTRACT_FORTRESS_AGREEMENT))
 
 	if err != nil {
-		log.Println("Error upload document " + string(FORTRESS_AGREEMENT) + " " + string(accountdomain.FRONT))
+		log.Println("Error upload document " + string(CONTRACT_FORTRESS_AGREEMENT) + " " + string(accountdomain.FRONT))
 	} else {
 
 		a.GetAccountHolder().SetDocument(
@@ -137,9 +137,9 @@ func GenerateContract(a *accountdomain.Account) {
 			}, a.GetAccountHolder().GetIDNumber())
 	}
 
-	pdfByte, err = makeContract(ACCOUNT_AGREEMENT, replacements)
+	pdfByte, err = makeContract(CONTRACT_ACCOUNT_AGREEMENT, replacements)
 	if err != nil {
-		log.Println("Error generating the contract: "+string(ACCOUNT_AGREEMENT)+" "+string(accountdomain.BACK), err)
+		log.Println("Error generating the contract: "+string(CONTRACT_ACCOUNT_AGREEMENT)+" "+string(accountdomain.BACK), err)
 		return
 	} else {
 

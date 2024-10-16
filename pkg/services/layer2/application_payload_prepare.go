@@ -1,4 +1,4 @@
-package layer2helpers
+package layer2
 
 import (
 	accountdomain "digital-bank/internal/account/domain"
@@ -83,7 +83,7 @@ func ApplicationPayloadPrepare(a *accountdomain.Account) map[string]interface{} 
 		}
 	}
 
-	holder := a.GetAccountHolder().(accountdomain.Individual)
+	holder := a.GetAccountHolder().(*accountdomain.Individual)
 
 	resident := "NON_RESIDENT_ALIEN"
 	if holder.GetAddress().Country == "" {

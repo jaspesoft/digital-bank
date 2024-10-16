@@ -10,12 +10,12 @@ type (
 	OnboardingAppClient struct {
 		repoAppClient       systemdomain.AppClientRepository
 		repoSystemParameter systemdomain.SystemParametersRepository
-		clintID             systemdomain.EntityID
+		clintID             systemdomain.EntityIDAdapter
 	}
 )
 
 func NewOnboardingAppClient(
-	clintID systemdomain.EntityID, repoAppClient systemdomain.AppClientRepository, repoSystemParameter systemdomain.SystemParametersRepository,
+	clintID systemdomain.EntityIDAdapter, repoAppClient systemdomain.AppClientRepository, repoSystemParameter systemdomain.SystemParametersRepository,
 ) *OnboardingAppClient {
 	return &OnboardingAppClient{
 		repoAppClient:       repoAppClient,
