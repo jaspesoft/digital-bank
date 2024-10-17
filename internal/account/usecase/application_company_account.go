@@ -25,7 +25,7 @@ func NewApplicationAccount(
 }
 
 func (a *ApplicationAccount) Run(
-	AccountUser *accountdomain.AccountUser, appClient systemdomain.AppClient, req reqaccount.ApplicationAccountCompanyRequest,
+	AccountUser *accountdomain.AccountUser, req reqaccount.ApplicationAccountCompanyRequest,
 ) systemdomain.Result[string] {
 
 	account := accountdomain.NewAccount(AccountUser, &req.Company)

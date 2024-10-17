@@ -56,7 +56,7 @@ func AuthMiddleware(c *gin.Context) {
 		return
 	}
 
-	c.Set("CompanyID", m.CompanyID)
+	c.Set("AppClient", resAppClient)
 
 	c.Next()
 

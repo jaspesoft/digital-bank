@@ -4,6 +4,7 @@ import (
 	systemdomain "digital-bank/internal/system/domain"
 	"encoding/json"
 	"errors"
+	"github.com/gin-gonic/gin"
 	"os"
 )
 
@@ -19,7 +20,10 @@ type (
 	}
 )
 
-func FindApplicationClientCredentials(appClient *systemdomain.AppClient) (*ServiceCredentials, error) {
+func FindApplicationClientCredentials(c *gin.Context) (*ServiceCredentials, error) {
+	client, _ := c.Get("AppClient")
+	appClient := client.(*systemdomain.AppClient)
+
 	var clients []ServiceCredentials
 	err := json.Unmarshal([]byte(os.Getenv("SERVICE_CREDENTIALS")), &clients)
 	if err != nil {
@@ -33,4 +37,10 @@ func FindApplicationClientCredentials(appClient *systemdomain.AppClient) (*Servi
 	}
 
 	return nil, errors.New("credentials not found")
+}
+
+func SearchApplicationClient(c *gin.Context) *systemdomain.AppClient {
+	appClient, _ := c.Get("AppClient")
+	return appClient.(*systemdomain.AppClient)
+
 }

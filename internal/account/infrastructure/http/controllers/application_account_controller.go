@@ -4,9 +4,7 @@ import (
 	requestsaccount "digital-bank/internal/account/infrastructure/http/requests"
 	accountpersistence "digital-bank/internal/account/infrastructure/persistence"
 	usecaseaccount "digital-bank/internal/account/usecase"
-	systempersistence "digital-bank/internal/system/infrastructure/persistence"
-	systemusecase "digital-bank/internal/system/usecase"
-	credentials "digital-bank/pkg/service_credentials"
+	"digital-bank/internal/system/infrastructure/service_credentials"
 	"digital-bank/pkg/services/layer2"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -21,26 +19,17 @@ func ApplicationAccountCompanyController(c *gin.Context) {
 		return
 	}
 
-	companyID, _ := c.Get("CompanyID")
-
-	appClient := systemusecase.NewSearchAppClient(
-		systempersistence.NewAppClientRedisRepository(),
-	).Run(companyID.(string))
-
-	if !appClient.IsOk() {
-		c.JSON(appClient.GetError().GetHTTPCode(), gin.H{"error": appClient.GetError().Error()})
-		return
-	}
-
 	log.Println(jsonApplicationAccountCompanyRequest)
 
-	credential, err := credentials.FindApplicationClientCredentials(appClient.GetValue())
+	credential, err := credentials.FindApplicationClientCredentials(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	accountUser, err := accountpersistence.NewAccountUserMongoRepository().FindByEmail(jsonApplicationAccountCompanyRequest.Email)
+	accountUser, err := accountpersistence.NewAccountUserMongoRepository().FindByEmail(
+		jsonApplicationAccountCompanyRequest.Email,
+	)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -49,7 +38,7 @@ func ApplicationAccountCompanyController(c *gin.Context) {
 	resp := usecaseaccount.NewApplicationAccount(
 		accountpersistence.NewAccountMongoRepository(),
 		layer2.NewLayer2Application(credential.Layer2Credentials),
-	).Run(accountUser, *appClient.GetValue(), jsonApplicationAccountCompanyRequest)
+	).Run(accountUser, jsonApplicationAccountCompanyRequest)
 
 	if !resp.IsOk() {
 		c.JSON(resp.GetError().GetHTTPCode(), gin.H{"error": resp.GetError().Error()})

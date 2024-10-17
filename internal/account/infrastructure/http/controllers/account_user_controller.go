@@ -5,8 +5,7 @@ import (
 	accountadapter "digital-bank/internal/account/infrastructure/adapter"
 	accountpersistence "digital-bank/internal/account/infrastructure/persistence"
 	usecaseaccount "digital-bank/internal/account/usecase"
-	systempersistence "digital-bank/internal/system/infrastructure/persistence"
-	systemusecase "digital-bank/internal/system/usecase"
+	credentials "digital-bank/internal/system/infrastructure/service_credentials"
 	eventbus "digital-bank/pkg/event_bus"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -19,23 +18,14 @@ func AccountUserRegisterController(c *gin.Context) {
 		return
 	}
 
-	companyID, _ := c.Get("CompanyID")
-
-	appClient := systemusecase.NewSearchAppClient(
-		systempersistence.NewAppClientRedisRepository(),
-	).Run(companyID.(string))
-
-	if !appClient.IsOk() {
-		c.JSON(appClient.GetError().GetHTTPCode(), gin.H{"error": appClient.GetError().Error()})
-		return
-	}
+	appClient := credentials.SearchApplicationClient(c)
 
 	resp := usecaseaccount.NewAccountUserRegister(
 		accountpersistence.NewAccountUserMongoRepository(),
 		accountadapter.NewHashPasswordAdapter(),
 		adapter.NewUUIDEntityID(),
 		eventbus.NewAWSEventBus(),
-	).Run(req, *appClient.GetValue())
+	).Run(req, *appClient)
 
 	if !resp.IsOk() {
 		c.JSON(resp.GetError().GetHTTPCode(), gin.H{"error": resp.GetError().Error()})
@@ -46,7 +36,7 @@ func AccountUserRegisterController(c *gin.Context) {
 
 }
 
-func ChangePassswordController(c *gin.Context) {
+func ChangePasswordController(c *gin.Context) {
 	var req usecaseaccount.ChangePasswordReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

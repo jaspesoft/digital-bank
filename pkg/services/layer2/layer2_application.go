@@ -2,8 +2,8 @@ package layer2
 
 import (
 	accountdomain "digital-bank/internal/account/domain"
+	"digital-bank/internal/system/infrastructure/service_credentials"
 	"digital-bank/pkg"
-	credentials "digital-bank/pkg/service_credentials"
 	"encoding/json"
 	"fmt"
 	"github.com/go-resty/resty/v2"

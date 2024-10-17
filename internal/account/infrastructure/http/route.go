@@ -11,5 +11,5 @@ func AccountRoute(r *gin.Engine) {
 
 	account.POST("/application", accountcontroller.ApplicationAccountCompanyController)
 	account.POST("/register", accountcontroller.AccountUserRegisterController)
-	account.PUT("/change-password", accountcontroller.ChangePassswordController)
+	account.PUT("/change-password", accountcontroller.ChangePasswordController)
 }

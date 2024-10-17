@@ -3,8 +3,8 @@ package layer2
 import (
 	"crypto/ed25519"
 	"crypto/x509"
+	"digital-bank/internal/system/infrastructure/service_credentials"
 	"digital-bank/pkg/cache"
-	credentials "digital-bank/pkg/service_credentials"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
