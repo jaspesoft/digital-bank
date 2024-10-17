@@ -4,7 +4,7 @@ import (
 	accountdomain "digital-bank/internal/account/domain"
 )
 
-func ConvertDocumentTypeToLayer2(docType accountdomain.DocumentType, side accountdomain.DocumentSide) Layer2DocumentType {
+func convertDocumentTypeToLayer2(docType accountdomain.DocumentType, side accountdomain.DocumentSide) Layer2DocumentType {
 
 	switch docType {
 	case accountdomain.UTILITY_BILL:
@@ -52,7 +52,7 @@ func ConvertDocumentTypeToLayer2(docType accountdomain.DocumentType, side accoun
 
 }
 
-func LookLayer2DocumentID(layer2Documents []ApplicationDocumentError, layer2DocType Layer2DocumentType) *string {
+func lookLayer2DocumentID(layer2Documents []ApplicationDocumentError, layer2DocType Layer2DocumentType) *string {
 	for _, doc := range layer2Documents {
 		if doc.Document == layer2DocType {
 			return &doc.DocumentID

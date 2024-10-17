@@ -40,7 +40,7 @@ func (l *Layer2Application) CreateApplication(a *accountdomain.Account) error {
 
 	a.SetApplicationID(res.data.id)
 
-	GenerateContract(a)
+	generateContract(a)
 
 	if a.GetAccountHolder().GetType() == accountdomain.COMPANY_CLIENT {
 		l.sendPartner(a)
@@ -161,13 +161,13 @@ func (l *Layer2Application) sendDocument(docs []accountdomain.Document, docError
 	client := resty.New()
 
 	for _, document := range docs {
-		layer2DocConverted := ConvertDocumentTypeToLayer2(document.DocumentType, document.GetDocumentSide())
+		layer2DocConverted := convertDocumentTypeToLayer2(document.DocumentType, document.GetDocumentSide())
 
 		if layer2DocConverted == "" {
 			continue
 		}
 
-		Layer2DocumentID := LookLayer2DocumentID(docErrors, layer2DocConverted)
+		Layer2DocumentID := lookLayer2DocumentID(docErrors, layer2DocConverted)
 
 		if Layer2DocumentID == nil {
 			continue

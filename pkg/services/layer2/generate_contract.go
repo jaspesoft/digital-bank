@@ -113,7 +113,7 @@ func makeContract(contract ContractType, replacements []map[string]string) ([]by
 	return generatePDF(htmlString)
 }
 
-func GenerateContract(a *accountdomain.Account) {
+func generateContract(a *accountdomain.Account) {
 	replacements := mapperContractValue(a)
 	pdfByte, err := makeContract(CONTRACT_FORTRESS_AGREEMENT, replacements)
 	if err != nil {
