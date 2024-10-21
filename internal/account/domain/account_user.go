@@ -8,15 +8,23 @@ import (
 
 type (
 	AccountUser struct {
-		Email       string      `json:"email"`
-		FirstName   string      `json:"firstName"`
-		MiddleName  string      `json:"middleName"`
-		LastName    string      `json:"lastName"`
-		AccountType AccountType `json:"userType"`
-		OwnerRecord systemdomain.AppClient
-		password    string    `json:"password"`
-		accountID   string    ` json:"accountId"`
-		createdAt   time.Time `json:"createdAt"`
+		Email          string      `json:"email"`
+		FirstName      string      `json:"firstName"`
+		MiddleName     string      `json:"middleName"`
+		LastName       string      `json:"lastName"`
+		AccountType    AccountType `json:"userType"`
+		Company        systemdomain.AppClient
+		password       string                       `json:"password"`
+		accountID      string                       ` json:"accountId"`
+		createdAt      time.Time                    `json:"createdAt"`
+		status         AccountStatus                `json:"status"`
+		transactionFee *systemdomain.TransactionFee `json:"transactionFee"`
+	}
+
+	TokenData struct {
+		AccountID      string                       `json:"accountId"`
+		Status         AccountStatus                `json:"status"`
+		TransactionFee *systemdomain.TransactionFee `json:"transactionFee"`
 	}
 
 	HashPasswordAdapter interface {
@@ -42,7 +50,15 @@ func (o *AccountUser) CreateOnboarding(email, firstName, middleName, lastName st
 	o.MiddleName = middleName
 	o.LastName = lastName
 	o.createdAt = time.Now()
-	o.OwnerRecord = ownerRecord
+	o.Company = ownerRecord
+}
+
+func (o *AccountUser) GetStatus() AccountStatus {
+	return o.status
+}
+
+func (o *AccountUser) GetTransactionFee() *systemdomain.TransactionFee {
+	return o.transactionFee
 }
 
 func (o *AccountUser) GeneratePassword(passAdapter HashPasswordAdapter) string {
@@ -85,12 +101,14 @@ func (o *AccountUser) GetName() string {
 
 func (o *AccountUser) AccountUserFromPrimitive(d map[string]interface{}) *AccountUser {
 	return &AccountUser{
-		Email:      d["email"].(string),
-		FirstName:  d["firstName"].(string),
-		MiddleName: d["middleName"].(string),
-		LastName:   d["lastName"].(string),
-		password:   d["password"].(string),
-		accountID:  d["accountId"].(string),
-		createdAt:  d["createdAt"].(time.Time),
+		Email:          d["email"].(string),
+		FirstName:      d["firstName"].(string),
+		MiddleName:     d["middleName"].(string),
+		LastName:       d["lastName"].(string),
+		password:       d["password"].(string),
+		accountID:      d["accountId"].(string),
+		createdAt:      d["createdAt"].(time.Time),
+		status:         d["status"].(AccountStatus),
+		transactionFee: d["transactionFee"].(*systemdomain.TransactionFee),
 	}
 }

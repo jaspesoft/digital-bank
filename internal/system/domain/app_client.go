@@ -33,8 +33,8 @@ type (
 	}
 
 	AppClientIdentifier struct {
-		ClientID    string `json:"clientId"`
-		CompanyName string `json:"companyName"`
+		ClientID    string `json:"clientId" bson:"clientId"`
+		CompanyName string `json:"companyName" bson:"companyName"`
 	}
 
 	AppClientRepository interface {

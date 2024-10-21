@@ -29,7 +29,7 @@ func (rc *AppClientMongoRepository) Upsert(appClient *systemdomain.AppClient) er
 func (rc *AppClientMongoRepository) GetClientByCompanyID(companyID string) (*systemdomain.AppClient, error) {
 
 	filter := bson.D{
-		{"companyId", companyID},
+		{"credentials.companyId", companyID},
 	}
 
 	return rc.searchWithFilter(filter)

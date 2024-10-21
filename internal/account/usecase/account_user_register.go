@@ -16,11 +16,11 @@ type (
 	}
 
 	AccountUserReq struct {
-		Email       string                    `json:"email"`
-		FirstName   string                    `json:"firstName"`
-		MiddleName  string                    `json:"middleName"`
+		Email       string                    `json:"email" binding:"required"`
+		FirstName   string                    `json:"firstName" binding:"required"`
+		MiddleName  string                    `json:"middleName" `
 		LastName    string                    `json:"lastName"`
-		AccountType accountdomain.AccountType `json:"userType"`
+		AccountType accountdomain.AccountType `json:"userType" binding:"required,accountTypeValidate"`
 	}
 )
 
@@ -43,7 +43,7 @@ func (u *AccountUserRegister) Run(req AccountUserReq, ownerRecord systemdomain.A
 	exists, err := u.userRepository.EmailExists(req.Email)
 	if err != nil {
 		log.Println("validate exists email in user account register error", err)
-		return systemdomain.NewResult[string]("", systemdomain.NewError(500, "internal server error in user register"))
+		return systemdomain.NewResult[string]("", systemdomain.NewError(400, "The reported email ("+req.Email+") is already registered on the platform."))
 	}
 
 	if exists {

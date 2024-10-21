@@ -16,7 +16,7 @@ type (
 )
 
 func NewAccountUserMongoRepository() *AccountUserMongoRepository {
-	return &AccountUserMongoRepository{mongo.NewMongoRepository("account")}
+	return &AccountUserMongoRepository{mongo.NewMongoRepository("accounts")}
 }
 
 func (r *AccountUserMongoRepository) Save(u *accountdomain.AccountUser) error {
@@ -27,8 +27,8 @@ func (r *AccountUserMongoRepository) Save(u *accountdomain.AccountUser) error {
 		{"accountId", u.GetAccountID()},
 		{"status", accountdomain.REGISTERED},
 		{"createdAt", u.GetCreatedAt()},
-		{"clientOwnerRecord", u.OwnerRecord.GetIdentifier()},
-		{"transactionFee", u.OwnerRecord.GetCommissionsDefault()},
+		{"company", u.Company.GetIdentifier()},
+		{"transactionFee", u.Company.GetCommissionsDefault()},
 	}
 
 	_, err := r.repo.GetCollection().InsertOne(context.TODO(), newUser)

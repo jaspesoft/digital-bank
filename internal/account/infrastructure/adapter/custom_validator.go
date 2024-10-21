@@ -22,12 +22,19 @@ var ValidateResidencyStatus validator.Func = func(fl validator.FieldLevel) bool 
 		str == string(accountdomain.NON_RESIDENT_ALIEN)
 }
 
+var ValidateAccountType validator.Func = func(fl validator.FieldLevel) bool {
+	str := fl.Field().String()
+	return str == string(accountdomain.INDIVIDUAL_CLIENT) || str == string(accountdomain.COMPANY_CLIENT)
+}
+
 func AccountCustomValidate() {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 
 		_ = v.RegisterValidation("companyTypeValidate", ValidateCompanyType)
 
 		_ = v.RegisterValidation("residencyStatusValidate", ValidateResidencyStatus)
+
+		_ = v.RegisterValidation("accountTypeValidate", ValidateAccountType)
 
 	}
 }

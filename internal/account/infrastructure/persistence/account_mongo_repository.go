@@ -16,7 +16,7 @@ type (
 
 func NewAccountMongoRepository() *AccountMongoRepository {
 	return &AccountMongoRepository{
-		repo: mongo.NewMongoRepository("account"),
+		repo: mongo.NewMongoRepository("accounts"),
 	}
 }
 

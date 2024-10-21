@@ -9,9 +9,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -20,11 +20,10 @@ type middleware struct {
 	Authorization string `json:"authorization"`
 }
 
-func AuthMiddleware(c *gin.Context) {
-	authHeader := c.GetHeader("Authorization")
-	bearerToken := strings.TrimPrefix(authHeader, "Bearer ")
+func CompanyClientAuthMiddleware(c *gin.Context) {
+	authHeader := c.GetHeader("X-Company-Token")
 
-	strToken, err := pkg.DecryptData(bearerToken, os.Getenv("PRIVATE_KEY"))
+	strToken, err := pkg.DecryptData(authHeader, os.Getenv("PRIVATE_KEY"))
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
@@ -44,25 +43,28 @@ func AuthMiddleware(c *gin.Context) {
 	resAppClient := searchClient(m.CompanyID)
 
 	if !resAppClient.IsOk() {
+		log.Println("CompanyClientAuthMiddleware resAppClient Error:", resAppClient.GetError().Error())
 		c.JSON(resAppClient.GetError().GetHTTPCode(), gin.H{"message": resAppClient.GetError().Error()})
 		c.Abort()
 		return
 	}
 
-	fmt.Println(resAppClient.GetValue().GetTokenAPI())
 	if resAppClient.GetValue().GetTokenAPI() != m.Authorization {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 		c.Abort()
 		return
 	}
 
-	c.Set("AppClient", resAppClient)
+	log.Println("company client authorized")
+
+	c.Set("AppClient", resAppClient.GetValue())
 
 	c.Next()
 
 }
 
 func searchClient(companyID string) systemdomain.Result[*systemdomain.AppClient] {
+	log.Println("searchClient companyID: " + companyID)
 
 	resUserApp := systemusecase.NewSearchAppClient(
 		systempersistence.NewAppClientRedisRepository(),

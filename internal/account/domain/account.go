@@ -29,7 +29,7 @@ type (
 		Status         AccountStatus                    `bson:"status" json:"status"`
 		TransactionFee *systemdomain.TransactionFee     `bson:"transactionFee" json:"transactionFee"`
 		ApprovedAt     time.Time                        `bson:"createdAt" json:"approvedAt"`
-		OwnerRecord    systemdomain.AppClientIdentifier `bson:"clientOwnerRecord" json:"ownerRecord"`
+		Company        systemdomain.AppClientIdentifier `bson:"company" json:"company"`
 	}
 
 	AccountRepository interface {
