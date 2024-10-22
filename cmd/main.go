@@ -5,7 +5,6 @@ import (
 	"digital-bank/infrastructure/config"
 	"digital-bank/infrastructure/events"
 	"digital-bank/infrastructure/http/server"
-	"log"
 )
 
 // @title Digital Bank API
@@ -14,7 +13,6 @@ import (
 // @host localhost:8080
 // @BasePath /
 func main() {
-	log.Println("PDF generado con éxito!")
 
 	config.LoadEnvironmentVariables()
 

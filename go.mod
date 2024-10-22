@@ -3,7 +3,9 @@ module digital-bank
 go 1.22
 
 require (
+	github.com/SebastiaanKlippert/go-wkhtmltopdf v1.9.3
 	github.com/aws/aws-sdk-go v1.55.5
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/validator/v10 v10.22.1
@@ -13,17 +15,16 @@ require (
 	github.com/lestrrat-go/jwx/v2 v2.1.1
 	github.com/slack-go/slack v0.14.0
 	go.mongodb.org/mongo-driver v1.16.1
+	golang.org/x/crypto v0.28.0
 )
 
 require (
-	github.com/SebastiaanKlippert/go-wkhtmltopdf v1.9.3 // indirect
 	github.com/bytedance/sonic v1.12.2 // indirect
 	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/gabriel-vasile/mimetype v1.4.5 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -57,7 +58,6 @@ require (
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	golang.org/x/arch v0.10.0 // indirect
-	golang.org/x/crypto v0.28.0 // indirect
 	golang.org/x/net v0.29.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect

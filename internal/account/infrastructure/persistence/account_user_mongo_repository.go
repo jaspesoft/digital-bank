@@ -28,6 +28,7 @@ func (r *AccountUserMongoRepository) Save(u *accountdomain.AccountUser) error {
 		{"status", accountdomain.REGISTERED},
 		{"createdAt", u.GetCreatedAt()},
 		{"company", u.Company.GetIdentifier()},
+		{"type", u.AccountType},
 		{"transactionFee", u.Company.GetCommissionsDefault()},
 	}
 
@@ -54,7 +55,7 @@ func (r *AccountUserMongoRepository) EmailExists(email string) (bool, error) {
 }
 
 func (r *AccountUserMongoRepository) FindByEmail(email string) (*accountdomain.AccountUser, error) {
-	var data map[string]interface{}
+	var data = make(map[string]interface{})
 	err := r.repo.GetCollection().FindOne(context.TODO(), bson.D{{"email", email}}).Decode(data)
 	if errors.Is(err, mongodb.ErrNoDocuments) {
 		return nil, errors.New("user not found")

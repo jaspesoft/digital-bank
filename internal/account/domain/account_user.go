@@ -3,6 +3,7 @@ package accountdomain
 import (
 	"digital-bank/internal"
 	systemdomain "digital-bank/internal/system/domain"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
 
@@ -44,13 +45,14 @@ func NewAccountUser() *AccountUser {
 	return &AccountUser{}
 }
 
-func (o *AccountUser) CreateOnboarding(email, firstName, middleName, lastName string, ownerRecord systemdomain.AppClient) {
+func (o *AccountUser) CreateOnboarding(email, firstName, middleName, lastName string, accountType AccountType, ownerRecord systemdomain.AppClient) {
 	o.Email = email
 	o.FirstName = firstName
 	o.MiddleName = middleName
 	o.LastName = lastName
 	o.createdAt = time.Now()
 	o.Company = ownerRecord
+	o.AccountType = accountType
 }
 
 func (o *AccountUser) GetStatus() AccountStatus {
@@ -62,7 +64,7 @@ func (o *AccountUser) GetTransactionFee() *systemdomain.TransactionFee {
 }
 
 func (o *AccountUser) GeneratePassword(passAdapter HashPasswordAdapter) string {
-	pass := internal.GenerateRandomString(24)
+	pass := internal.GenerateRandomString(8)
 	o.password, _ = passAdapter.HashPassword(pass)
 
 	return pass
@@ -100,15 +102,61 @@ func (o *AccountUser) GetName() string {
 }
 
 func (o *AccountUser) AccountUserFromPrimitive(d map[string]interface{}) *AccountUser {
+
+	var name, middleName, lastName string
+	if d["type"].(string) == "COMPANY" {
+		name = d["name"].(string)
+	} else {
+		name = d["firstName"].(string)
+		middleName = d["middleName"].(string)
+		lastName = d["lastName"].(string)
+	}
+
 	return &AccountUser{
 		Email:          d["email"].(string),
-		FirstName:      d["firstName"].(string),
-		MiddleName:     d["middleName"].(string),
-		LastName:       d["lastName"].(string),
+		FirstName:      name,
+		MiddleName:     middleName,
+		LastName:       lastName,
+		AccountType:    AccountType(d["type"].(string)),
 		password:       d["password"].(string),
 		accountID:      d["accountId"].(string),
-		createdAt:      d["createdAt"].(time.Time),
-		status:         d["status"].(AccountStatus),
-		transactionFee: d["transactionFee"].(*systemdomain.TransactionFee),
+		createdAt:      d["createdAt"].(primitive.DateTime).Time(),
+		status:         AccountStatus(d["status"].(string)),
+		transactionFee: convertToTransactionFee(d["transactionFee"].(map[string]interface{})),
 	}
+}
+
+func convertToTransactionFee(data map[string]interface{}) *systemdomain.TransactionFee {
+
+	domesticUSA := systemdomain.DomesticUSA{
+		ACH: struct {
+			IN  float64 `json:"in"`
+			OUT float64 `json:"out"`
+		}{
+			IN:  data["domesticUsa"].(map[string]interface{})["ach"].(map[string]interface{})["in"].(float64),
+			OUT: data["domesticUsa"].(map[string]interface{})["ach"].(map[string]interface{})["out"].(float64),
+		},
+		FedWire: struct {
+			IN  float64 `json:"in"`
+			OUT float64 `json:"out"`
+		}{
+			IN:  data["domesticUsa"].(map[string]interface{})["fedWire"].(map[string]interface{})["in"].(float64),
+			OUT: data["domesticUsa"].(map[string]interface{})["fedWire"].(map[string]interface{})["out"].(float64),
+		},
+	}
+
+	swift := systemdomain.SwiftUSA{
+		IN:  data["swiftUsa"].(map[string]interface{})["in"].(float64),
+		OUT: data["swiftUsa"].(map[string]interface{})["out"].(float64),
+	}
+
+	swap := systemdomain.Swap{
+		Buy:  data["swap"].(map[string]interface{})["buy"].(float64),
+		Sell: data["swap"].(map[string]interface{})["sell"].(float64),
+	}
+	return systemdomain.NewTransactionFee(
+		domesticUSA,
+		swift,
+		swap,
+	)
 }

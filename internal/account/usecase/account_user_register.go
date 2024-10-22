@@ -51,7 +51,7 @@ func (u *AccountUserRegister) Run(req AccountUserReq, ownerRecord systemdomain.A
 	}
 
 	user := accountdomain.NewAccountUser()
-	user.CreateOnboarding(req.Email, req.FirstName, req.MiddleName, req.LastName, ownerRecord)
+	user.CreateOnboarding(req.Email, req.FirstName, req.MiddleName, req.LastName, req.AccountType, ownerRecord)
 	user.SetAccountID(u.entityIDAdapter)
 	tmpPass := user.GeneratePassword(u.passAdapter)
 
@@ -67,8 +67,4 @@ func (u *AccountUserRegister) Run(req AccountUserReq, ownerRecord systemdomain.A
 	}, systemdomain.TOPIC_SENDMAIL)
 
 	return systemdomain.NewResult[string]("An email will be sent with the access data to the platform.", nil)
-}
-
-func AccountUserFromPrimitive(d map[string]interface{}) {
-
 }

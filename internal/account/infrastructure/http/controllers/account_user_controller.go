@@ -11,6 +11,28 @@ import (
 	"net/http"
 )
 
+func LoginController(c *gin.Context) {
+	var req usecaseaccount.LoginReq
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp := usecaseaccount.NewAccountUserLogin(
+		accountpersistence.NewAccountUserMongoRepository(),
+		accountadapter.NewHashPasswordAdapter(),
+		accountadapter.NewJWTTokenAdapter(),
+	).Run(req)
+
+	if !resp.IsOk() {
+		c.JSON(resp.GetError().GetHTTPCode(), gin.H{"error": resp.GetError().Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp.GetValue())
+}
+
 func AccountUserRegisterController(c *gin.Context) {
 	var req usecaseaccount.AccountUserReq
 	if err := c.ShouldBindJSON(&req); err != nil {

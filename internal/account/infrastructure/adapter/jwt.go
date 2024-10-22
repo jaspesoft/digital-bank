@@ -12,14 +12,20 @@ type (
 		AccountHolder accountdomain.TokenData `json:"user"`
 		jwt.StandardClaims
 	}
+
+	JWTTokenAdapter struct{}
 )
 
-func CreateToken(data accountdomain.TokenData) (string, error) {
+func NewJWTTokenAdapter() *JWTTokenAdapter {
+	return &JWTTokenAdapter{}
+}
+
+func (t *JWTTokenAdapter) CreateToken(user *accountdomain.TokenData) (string, error) {
 	expireTime := time.Now().Add(time.Hour * 15).Unix()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"exp":           expireTime,
-		"accountHolder": data,
+		"accountHolder": user,
 	})
 
 	signedToken, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
